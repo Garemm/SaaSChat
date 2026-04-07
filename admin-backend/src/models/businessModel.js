@@ -8,8 +8,8 @@ const BusinessModel = {
    */
   async create({ name, category, description, city, email, phone, webpage_link }) {
     const { rows } = await db.query(
-      `INSERT INTO businesses (name, category, description, city, email, phone, webpage_link)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO businesses (name, category, description, city, email, phone, webpage_link, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false)
        RETURNING id, name, category`,
       [name, category, description, city, email, phone, webpage_link]
     );
@@ -18,8 +18,11 @@ const BusinessModel = {
 
   async findById(id) {
     const { rows } = await db.query(
-      `SELECT id, name, category, description, city, email, phone, webpage_link, created_at
-       FROM businesses WHERE id = $1`,
+      `SELECT b.id, b.name, b.category, bt.name AS category_name,
+              b.description, b.city, b.email, b.phone, b.webpage_link, b.created_at
+       FROM businesses b
+       LEFT JOIN business_types bt ON bt.id = b.category
+       WHERE b.id = $1`,
       [id]
     );
     return rows[0] || null;
@@ -32,9 +35,11 @@ const BusinessModel = {
            email = $5, phone = $6, webpage_link = $7
        WHERE id = $8
        RETURNING id, name, category, description, city, email, phone, webpage_link`,
-      [name, category, description, city, email, phone, webpage_link, id]
+      [name, parseInt(category, 10), description, city, email, phone, webpage_link, id]
     );
-    return rows[0] || null;
+    if (!rows[0]) return null;
+    // Enrich with category_name via second cheap query
+    return this.findById(rows[0].id);
   },
 
   async findByEmail(email) {
@@ -53,6 +58,33 @@ const BusinessModel = {
        WHERE b.email = $1
        LIMIT 1`,
       [email]
+    );
+    return rows[0] || null;
+  },
+
+  /** Returns every business — used by the subscription management panel. */
+  async listAll() {
+    const { rows } = await db.query(
+      `SELECT b.id, b.name, b.email, b.category, bt.name AS category_name,
+              b.city, b.is_active, b.created_at
+       FROM businesses b
+       LEFT JOIN business_types bt ON bt.id = b.category
+       ORDER BY b.created_at DESC`
+    );
+    return rows;
+  },
+
+  /**
+   * Toggles the is_active flag for a business.
+   * Returns the updated row, or null if not found.
+   */
+  async setActive(id, isActive) {
+    const { rows } = await db.query(
+      `UPDATE businesses
+       SET is_active = $1
+       WHERE id = $2
+       RETURNING id, name, email, category, is_active`,
+      [isActive, id]
     );
     return rows[0] || null;
   },

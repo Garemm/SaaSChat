@@ -28,3 +28,48 @@ CREATE TABLE IF NOT EXISTS product_query_logs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_pql_business_date ON product_query_logs (business_id, query_date);
+
+-- ── Subscription management fields ───────────────────────────────────────────
+-- is_active          → true when a subscription manager has activated this business.
+--                      New businesses start as inactive (default false).
+-- can_manage_subscriptions → true when this business's admin can access the
+--                      Subscriptions panel and toggle other businesses' access.
+
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS is_active               BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS can_manage_subscriptions BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- 1. Crear tabla (igual que tienes)
+CREATE TABLE IF NOT EXISTS business_types (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 2. Insertar datos
+INSERT INTO business_types (name) VALUES
+('restaurant'),
+('hardware'),
+('stationery'),
+('pharmacy'),
+('clothing'),
+('other')
+ON CONFLICT (name) DO NOTHING;
+
+-- 3. ELIMINAR CHECK ANTES DEL UPDATE (CLAVE)
+ALTER TABLE businesses
+DROP CONSTRAINT IF EXISTS businesses_category_check;
+
+-- 4. Ahora sí hacer el UPDATE
+UPDATE businesses b
+SET category = bt.id::text
+FROM business_types bt
+WHERE b.category = bt.name;
+
+-- 5. Convertir columna a INT
+ALTER TABLE businesses
+ALTER COLUMN category TYPE INT USING category::integer;
+
+-- 6. Crear Foreign Key
+ALTER TABLE businesses
+ADD CONSTRAINT fk_business_category
+FOREIGN KEY (category) REFERENCES business_types(id);

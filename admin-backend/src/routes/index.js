@@ -12,6 +12,9 @@ const serviceController   = require('../controllers/serviceController');
 const promotionController = require('../controllers/promotionController');
 const hoursController     = require('../controllers/hoursController');
 const analyticsController = require('../controllers/analyticsController');
+const subscriptionController       = require('../controllers/subscriptionController');
+const requireSubscriptionPermission = require('../middlewares/requireSubscriptionPermission');
+const businessTypeController = require('../controllers/businessTypeController');
 
 // ── Auth (public) ─────────────────────────────────────────────────────────────
 router.post('/login',           authController.login);
@@ -20,6 +23,8 @@ router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password',  authController.resetPassword);// Refresh + logout use the HTTP-only cookie — no access token needed
 router.post('/refresh',         authController.refreshToken);
 router.post('/logout',          authController.logout);
+// ── Public catalogue endpoints ────────────────────────────────────────────────
+router.get('/business-types',   businessTypeController.list);
 // ── All routes below require auth ────────────────────────────────────────────
 router.use(requireAuth);
 
@@ -72,5 +77,9 @@ router.delete('/hours/:id', hoursController.remove);
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 router.get('/analytics/top-products/:business_id', analyticsController.getTopProducts);
+
+// ── Subscriptions (requires can_manage_subscriptions permission) ──────────────
+router.get('/subscriptions',      requireSubscriptionPermission, subscriptionController.list);
+router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
 
 module.exports = router;

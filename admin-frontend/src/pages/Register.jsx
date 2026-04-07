@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/api';
+import { register, getBusinessTypes } from '../services/api';
 
 const INITIAL = {
   name: '', category: '', description: '', city: '', email: '',
   phone: '', webpage_link: '', username: '', password: '', confirmPassword: '',
 };
 
-const CATEGORIES = [
-  { value: 'restaurant', label: 'Restaurante' },
-  { value: 'hardware',   label: 'Ferretería / Hardware' },
-  { value: 'stationery', label: 'Papelería' },
-];
-
 const Register = () => {
   const navigate = useNavigate();
-  const [form, setForm]       = useState(INITIAL);
-  const [errors, setErrors]   = useState({});
+  const [form, setForm]           = useState(INITIAL);
+  const [errors, setErrors]       = useState({});
   const [serverErr, setServerErr] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [success, setSuccess]     = useState(false);
+  const [categories, setCategories]   = useState([]);
+  const [catLoading, setCatLoading]   = useState(true);
+
+  useEffect(() => {
+    getBusinessTypes()
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setCatLoading(false));
+  }, []);
 
   const set = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -107,10 +110,13 @@ const Register = () => {
                 value={form.category}
                 onChange={set('category')}
                 className={errors.category ? 'input-error' : ''}
+                disabled={catLoading}
               >
-                <option value="">Seleccionar…</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
+                <option value="">{catLoading ? 'Cargando…' : 'Seleccionar…'}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.name.charAt(0).toUpperCase() + c.name.slice(1)}
+                  </option>
                 ))}
               </select>
             </Field>

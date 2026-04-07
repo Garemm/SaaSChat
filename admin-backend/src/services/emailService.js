@@ -20,12 +20,12 @@ const transporter = nodemailer.createTransport({
  */
 async function sendPasswordReset(toEmail, rawToken, businessName) {
   const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
-  const from = process.env.SMTP_FROM || `"Admin Panel" <no-reply@${process.env.SMTP_HOST}>`;
+  const from = process.env.SMTP_FROM || `"hayChat Admin Panel" <no-reply@${process.env.SMTP_HOST}>`;
 
   await transporter.sendMail({
     from,
     to: toEmail,
-    subject: 'Restablece tu contraseña — Admin Panel',
+    subject: 'Restablece tu contraseña — hayChat Admin Panel',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
         <h2 style="color:#1a1a2e">Restablecer contraseña</h2>

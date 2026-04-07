@@ -49,7 +49,7 @@ const BusinessInfo = () => {
       </div>
       <div className="info-card">
         <Row label="Nombre"      value={business.name}         />
-        <Row label="Categoría"   value={business.category}     />
+        <Row label="Categoría"   value={business.category_name} />
         <Row label="Ciudad"      value={business.city}         />
         <Row label="Descripción" value={business.description}  />
         <Row label="Email"       value={business.email}        />

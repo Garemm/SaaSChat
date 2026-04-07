@@ -17,9 +17,10 @@ const TITLES = {
 
 const Navbar = ({ onMenuClick }) => {
   const { pathname } = useLocation();
-  const { signOut }  = useAuth();
+  const { signOut, isActive }  = useAuth();
   const navigate     = useNavigate();
   const title = TITLES[pathname] ?? 'Admin';
+  const locked = !isActive;
 
   const handleLogout = async () => {
     await signOut();
@@ -27,7 +28,7 @@ const Navbar = ({ onMenuClick }) => {
   };
 
   return (
-    <header className="navbar">
+    <header className={`navbar${locked ? ' navbar--locked' : ''}`}>
       <div className="navbar__left">
         <motion.button
           className="navbar__hamburger"

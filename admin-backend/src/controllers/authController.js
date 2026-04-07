@@ -28,7 +28,13 @@ const login = async (req, res, next) => {
     // Deliver refresh token via HTTP-only cookie (not accessible from JS)
     res.cookie('rt', refreshToken, jwtUtils.REFRESH_COOKIE_OPTS);
 
-    res.json({ success: true, accessToken, businessId: admin.business_id });
+    res.json({
+      success: true,
+      accessToken,
+      businessId: admin.business_id,
+      canManageSubscriptions: admin.can_manage_subscriptions ?? false,
+      isActive: admin.is_active ?? false,
+    });
   } catch (err) {
     if (err.message === 'Credenciales incorrectas') {
       return res.status(401).json({ success: false, error: err.message });
@@ -53,6 +59,9 @@ const forgotPassword = async (req, res, next) => {
     if (record) {
       const rawToken = await authService.createResetToken(record.admin_id);
       await emailService.sendPasswordReset(email, rawToken, record.business_name);
+    }else{
+      // Optional: log the attempt for monitoring (but never the email)
+      console.warn(`Requisición de restablecimiento de contraseña para un correo no registrado: ${email}`);
     }
 
     // Always respond the same way
@@ -151,7 +160,13 @@ const refreshToken = async (req, res, next) => {
     await AdminModel.saveRefreshTokenHash(admin.id, hashToken(newRefresh));
     res.cookie('rt', newRefresh, jwtUtils.REFRESH_COOKIE_OPTS);
 
-    res.json({ success: true, accessToken: newAccess, businessId: admin.business_id });
+    res.json({
+      success: true,
+      accessToken: newAccess,
+      businessId: admin.business_id,
+      canManageSubscriptions: admin.can_manage_subscriptions ?? false,
+      isActive: admin.is_active ?? false,
+    });
   } catch (err) { next(err); }
 };
 

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Icon from '../components/ui/Icon';
+import { useAuth } from '../context/AuthContext';
 
 const links = [
   { to: '/dashboard',   label: 'Dashboard',           icon: 'dashboard'  },
@@ -30,17 +31,19 @@ const navItemVariants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
 
-const SidebarLink = ({ to, label, icon, onClick }) => (
+const SidebarLink = ({ to, label, icon, onClick, locked }) => (
   <NavLink
     to={to}
     onClick={onClick}
     className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
+    tabIndex={locked ? -1 : undefined}
+    aria-disabled={locked || undefined}
   >
     {({ isActive }) => (
       <motion.span
         className="sidebar__link-inner"
-        whileHover={{ x: 3, scale: 1.01 }}
-        whileTap={{ scale: 0.97 }}
+        whileHover={locked ? {} : { x: 3, scale: 1.01 }}
+        whileTap={locked ? {} : { scale: 0.97 }}
         transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       >
         <motion.span
@@ -52,8 +55,15 @@ const SidebarLink = ({ to, label, icon, onClick }) => (
         </motion.span>
         <span>{label}</span>
 
+        {/* Lock badge when subscription is inactive */}
+        {locked && (
+          <span className="sidebar__link-lock">
+            <Icon name="lock" size={11} />
+          </span>
+        )}
+
         {/* Active glow pill */}
-        {isActive && (
+        {isActive && !locked && (
           <motion.span
             className="sidebar__active-pill"
             layoutId="sidebar-active-pill"
@@ -66,12 +76,18 @@ const SidebarLink = ({ to, label, icon, onClick }) => (
 );
 
 const Sidebar = ({ onClose }) => {
+  const { canManageSubscriptions, isActive } = useAuth();
+  const locked = !isActive;
   const handleNav = () => {
     if (window.innerWidth < 900) onClose?.();
   };
 
+  const visibleLinks = canManageSubscriptions
+    ? [...links, { to: '/subscriptions', label: 'Suscripciones', icon: 'subscriptions' }]
+    : links;
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${locked ? ' sidebar--locked' : ''}`}>
       {/* Brand */}
       <motion.div
         className="sidebar__brand"
@@ -104,9 +120,9 @@ const Sidebar = ({ onClose }) => {
         initial="hidden"
         animate="visible"
       >
-        {links.map(({ to, label, icon }) => (
+        {visibleLinks.map(({ to, label, icon }) => (
           <motion.div key={to} variants={navItemVariants}>
-            <SidebarLink to={to} label={label} icon={icon} onClick={handleNav} />
+            <SidebarLink to={to} label={label} icon={icon} onClick={handleNav} locked={locked} />
           </motion.div>
         ))}
       </motion.nav>
@@ -120,7 +136,7 @@ const Sidebar = ({ onClose }) => {
       >
         <div className="sidebar__divider" />
         {bottomLinks.map(({ to, label, icon }) => (
-          <SidebarLink key={to} to={to} label={label} icon={icon} onClick={handleNav} />
+          <SidebarLink key={to} to={to} label={label} icon={icon} onClick={handleNav} locked={locked} />
         ))}
       </motion.div>
     </aside>

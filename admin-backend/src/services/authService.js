@@ -16,7 +16,13 @@ async function login(username, password) {
   const match = await bcrypt.compare(password, admin.password);
   if (!match) throw new Error('Credenciales incorrectas');
 
-  return { id: admin.id, username: admin.username, business_id: admin.business_id };
+  return {
+    id: admin.id,
+    username: admin.username,
+    business_id: admin.business_id,
+    can_manage_subscriptions: admin.can_manage_subscriptions ?? false,
+    is_active: admin.is_active ?? false,
+  };
 }
 
 /**

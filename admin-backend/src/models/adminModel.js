@@ -8,9 +8,11 @@ const AdminModel = {
    */
   async findByUsernameForAuth(username) {
     const { rows } = await db.query(
-      `SELECT id, username, password, business_id
-       FROM admins
-       WHERE username = $1`,
+      `SELECT a.id, a.username, a.password, a.business_id,
+              b.can_manage_subscriptions, b.is_active
+       FROM admins a
+       JOIN businesses b ON b.id = a.business_id
+       WHERE a.username = $1`,
       [username]
     );
     return rows[0] || null;
@@ -95,8 +97,11 @@ const AdminModel = {
    */
   async findById(adminId) {
     const { rows } = await db.query(
-      `SELECT id, username, business_id, refresh_token_hash
-       FROM admins WHERE id = $1`,
+      `SELECT a.id, a.username, a.business_id, a.refresh_token_hash,
+              b.can_manage_subscriptions, b.is_active
+       FROM admins a
+       JOIN businesses b ON b.id = a.business_id
+       WHERE a.id = $1`,
       [adminId]
     );
     return rows[0] || null;

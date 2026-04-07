@@ -192,3 +192,15 @@ export const importConfirm = (rows, createMissingCategories = false) =>
     body: JSON.stringify({ rows, createMissingCategories }),
   });
 
+// ── Subscriptions ─────────────────────────────────────────────────────────────
+export const getSubscriptions   = ()               => request(`${BASE}/subscriptions`);
+export const toggleSubscription = (id, is_active)  => request(`${BASE}/subscriptions/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify({ is_active }),
+});
+
+// ── Business types (public — used by Register + BusinessForm) ─────────────────
+export const getBusinessTypes = () =>
+  publicRequest(`${BASE}/business-types`)
+    .then((res) => res.data ?? res);
+

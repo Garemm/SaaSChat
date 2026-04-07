@@ -1579,3 +1579,476 @@ textarea { resize: vertical; }
   justify-content: center;
 }
 
+
+/* ── Subscriptions page ────────────────────────────────────────────────────── */
+.sub {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.sub__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.sub__title {
+  margin: 0 0 .25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.sub__subtitle {
+  margin: 0;
+  font-size: .875rem;
+  color: var(--text-muted);
+}
+
+/* Summary stats */
+.sub__stats {
+  display: flex;
+  gap: .75rem;
+  flex-shrink: 0;
+}
+.sub__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .6rem 1.1rem;
+  min-width: 68px;
+}
+.sub__stat--active   { border-color: rgba(52,211,153,.35);  background: rgba(52,211,153,.06); }
+.sub__stat--inactive { border-color: rgba(248,113,113,.3);  background: rgba(248,113,113,.05); }
+.sub__stat-num {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.sub__stat--active   .sub__stat-num { color: #34d399; }
+.sub__stat--inactive .sub__stat-num { color: #f87171; }
+.sub__stat-label {
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* Toolbar */
+.sub__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.sub__search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+}
+.sub__search-icon {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.sub__search {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .55rem .75rem .55rem 2.2rem;
+  font-size: .875rem;
+  color: var(--text-primary);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.sub__search:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+}
+.sub__search-clear {
+  position: absolute;
+  right: .6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: .15rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .15s;
+}
+.sub__search-clear:hover { color: var(--text-primary); }
+
+/* Filter buttons */
+.sub__filters {
+  display: flex;
+  gap: .375rem;
+}
+.sub__filter-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: .42rem .9rem;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.sub__filter-btn:hover        { border-color: #6366f1; color: #818cf8; }
+.sub__filter-btn--active      { background: rgba(99,102,241,.12); border-color: #6366f1; color: #818cf8; }
+
+/* Card wrapper */
+.sub__card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Table */
+.sub__table-wrap { overflow-x: auto; }
+.sub__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .875rem;
+}
+.sub__table thead tr {
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+}
+.sub__table th {
+  padding: .75rem 1rem;
+  text-align: left;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.sub__th-center { text-align: center; }
+.sub__table td {
+  padding: .85rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+.sub__row:last-child td    { border-bottom: none; }
+.sub__row--inactive td     { opacity: .65; }
+.sub__row:hover td         { background: rgba(255,255,255,.025); }
+
+/* Cell content */
+.sub__biz-name  { font-weight: 600; color: var(--text-primary); }
+.sub__biz-email { font-size: .78rem; color: var(--text-muted); margin-top: .15rem; }
+.sub__td-city,
+.sub__td-date   { color: var(--text-muted); white-space: nowrap; }
+
+.sub__category {
+  background: rgba(99,102,241,.1);
+  color: #818cf8;
+  border: 1px solid rgba(99,102,241,.2);
+  border-radius: 5px;
+  padding: .2rem .55rem;
+  font-size: .75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Status badge */
+.sub__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .78rem;
+  font-weight: 500;
+  padding: .25rem .65rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.sub__badge--active   { background: rgba(52,211,153,.1);   color: #34d399; border: 1px solid rgba(52,211,153,.25); }
+.sub__badge--inactive { background: rgba(248,113,113,.08); color: #f87171; border: 1px solid rgba(248,113,113,.2); }
+.sub__badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Toggle switch */
+.sub__td-toggle { text-align: center; }
+.sub__toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+.sub__toggle--on       { background: #6366f1; border-color: #6366f1; }
+.sub__toggle--disabled { opacity: .5; cursor: not-allowed; }
+.sub__toggle-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.sub__toggle--on .sub__toggle-thumb { transform: translateX(20px); }
+.sub__toggle-spinner {
+  display: inline-flex;
+  align-items: center;
+  margin-left: .35rem;
+  opacity: .7;
+}
+
+/* Table footer */
+.sub__table-footer {
+  padding: .7rem 1rem;
+  font-size: .78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+  text-align: right;
+}
+
+/* Loading state */
+.sub__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 0;
+}
+.sub__loading-text { color: var(--text-muted); font-size: .9rem; }
+
+/* Empty state */
+.sub__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: 4rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+}
+.sub__empty-icon  { color: var(--text-muted); opacity: .4; }
+.sub__empty-title { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.sub__empty-desc  { margin: 0; font-size: .875rem; color: var(--text-muted); }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .sub__header { flex-direction: column; }
+  .sub__stats  { align-self: stretch; justify-content: space-between; }
+  .sub__table th:nth-child(3),
+  .sub__table td:nth-child(3) { display: none; }
+}
+
+/* ── Subscription Gate ─────────────────────────────────────────────────────── */
+.gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 2rem 1rem;
+}
+
+.gate__card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 2.75rem 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  box-shadow: 0 8px 40px rgba(0,0,0,.25);
+}
+
+/* Pulsing icon */
+.gate__icon-wrap {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(99,102,241,.1);
+  border: 1px solid rgba(99,102,241,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.6rem;
+  color: #818cf8;
+  flex-shrink: 0;
+}
+.gate__icon {
+  width: 32px; height: 32px;
+}
+
+/* Text */
+.gate__title {
+  margin: 0 0 .85rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+.gate__body {
+  margin: 0 0 1.4rem;
+  font-size: .925rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* Info strip */
+.gate__info-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  background: rgba(99,102,241,.07);
+  border: 1px solid rgba(99,102,241,.18);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  font-size: .845rem;
+  color: #a5b4fc;
+  line-height: 1.55;
+  margin-bottom: 1.75rem;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+.gate__info-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #818cf8;
+  flex-shrink: 0;
+  margin-top: .38rem;
+}
+
+/* Buttons */
+.gate__actions {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  width: 100%;
+}
+.gate__btn {
+  width: 100%;
+  padding: .72rem 1.25rem;
+  border-radius: 9px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.gate__btn--primary {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+}
+.gate__btn--primary:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(99,102,241,.4);
+}
+.gate__btn--ghost {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.gate__btn--ghost:hover {
+  border-color: rgba(255,255,255,.25);
+  color: var(--text-primary);
+}
+
+/* Footnote */
+.gate__footnote {
+  margin: 1.4rem 0 0;
+  font-size: .775rem;
+  color: var(--text-muted);
+  opacity: .7;
+  line-height: 1.55;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .gate__card { padding: 2rem 1.25rem 1.5rem; }
+  .gate__title { font-size: 1.15rem; }
+}
+
+/* ── Locked / Subscription-inactive states ─────────────────────────────────── */
+
+/* Sidebar — nav and footer sections are dimmed and non-interactive */
+.sidebar--locked .sidebar__nav,
+.sidebar--locked .sidebar__footer {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+  cursor: default;
+  transition: opacity 0.3s ease;
+}
+
+/* Small lock badge inside each nav link */
+.sidebar__link-lock {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  opacity: 0.65;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Navbar — dim left side (title + hamburger) but keep logout button active */
+.navbar--locked .navbar__left {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Subtle lock banner below navbar — indicates locked state */
+.admin-layout--locked .admin-layout__content {
+  position: relative;
+}
+
+/* ── Form loading placeholder ────────────────────────────────────────────────── */
+.form-input--loading {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--text-muted);
+  font-size: .875rem;
+  cursor: default;
+  opacity: .7;
+}

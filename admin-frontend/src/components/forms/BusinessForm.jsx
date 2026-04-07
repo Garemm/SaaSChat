@@ -1,21 +1,31 @@
 import { useEffect, useState } from 'react';
-import { updateBusiness } from '../../services/api';
+import { updateBusiness, getBusinessTypes } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../ui/Spinner';
 
-const CATEGORIES = ['restaurant', 'hardware', 'stationery', 'pharmacy', 'clothing', 'other'];
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const BusinessForm = ({ business, onSaved, onCancel }) => {
   const { addToast } = useToast();
-  const [form,   setForm]   = useState({ name: '', category: '', description: '', city: '', email: '', phone: '', webpage_link: '' });
-  const [error,  setError]  = useState('');
-  const [saving, setSaving] = useState(false);
+  const [form,       setForm]       = useState({ name: '', category: '', description: '', city: '', email: '', phone: '', webpage_link: '' });
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(true);
+  const [error,      setError]      = useState('');
+  const [saving,     setSaving]     = useState(false);
+
+  // ── Load business types from DB ─────────────────────────────────────────
+  useEffect(() => {
+    getBusinessTypes()
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => addToast('Error al cargar categorías', 'error'))
+      .finally(() => setCatLoading(false));
+  }, []);
 
   useEffect(() => {
     if (business) {
       setForm({
         name:         business.name,
-        category:     business.category,
+        category:     String(business.category ?? ''),
         description:  business.description ?? '',
         city:         business.city ?? '',
         email:        business.email ?? '',
@@ -54,10 +64,16 @@ const BusinessForm = ({ business, onSaved, onCancel }) => {
 
       <div className="form-group">
         <label className="form-label">Categoría *</label>
-        <select className="form-input" value={form.category} onChange={(e) => set('category', e.target.value)} required>
-          <option value="">Selecciona una categoría</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-        </select>
+        {catLoading ? (
+          <div className="form-input form-input--loading"><Spinner size={14} /> Cargando...</div>
+        ) : (
+          <select className="form-input" value={form.category} onChange={(e) => set('category', e.target.value)} required>
+            <option value="">Selecciona una categoría</option>
+            {categories.map((c) => (
+              <option key={c.id} value={String(c.id)}>{capitalize(c.name)}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="form-group">
@@ -87,7 +103,7 @@ const BusinessForm = ({ business, onSaved, onCancel }) => {
 
       <div className="form-actions">
         <button type="button" className="btn btn--ghost" onClick={onCancel}>Cancelar</button>
-        <button type="submit" className="btn btn--primary" disabled={saving}>
+        <button type="submit" className="btn btn--primary" disabled={saving || catLoading}>
           {saving ? <Spinner size={16} /> : 'Guardar cambios'}
         </button>
       </div>
