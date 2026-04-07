@@ -9,7 +9,7 @@ const AdminModel = {
   async findByUsernameForAuth(username) {
     const { rows } = await db.query(
       `SELECT a.id, a.username, a.password, a.business_id,
-              b.can_manage_subscriptions, b.is_active
+              b.tipo_permiso, b.is_active
        FROM admins a
        JOIN businesses b ON b.id = a.business_id
        WHERE a.username = $1`,
@@ -98,7 +98,7 @@ const AdminModel = {
   async findById(adminId) {
     const { rows } = await db.query(
       `SELECT a.id, a.username, a.business_id, a.refresh_token_hash,
-              b.can_manage_subscriptions, b.is_active
+              b.tipo_permiso, b.is_active
        FROM admins a
        JOIN businesses b ON b.id = a.business_id
        WHERE a.id = $1`,

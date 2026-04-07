@@ -78,7 +78,7 @@ router.delete('/hours/:id', hoursController.remove);
 // ── Analytics ─────────────────────────────────────────────────────────────────
 router.get('/analytics/top-products/:business_id', analyticsController.getTopProducts);
 
-// ── Subscriptions (requires can_manage_subscriptions permission) ──────────────
+// ── Subscriptions (requires tipo_permiso = 1 — manejo de suscriptores) ──────────────
 router.get('/subscriptions',      requireSubscriptionPermission, subscriptionController.list);
 router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
 

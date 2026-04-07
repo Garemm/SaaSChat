@@ -1,6 +1,6 @@
 // ── Subscription Controller ──────────────────────────────────────────────────
 // Manages which businesses have active subscription access.
-// Only admins whose business has can_manage_subscriptions = true may call these.
+// Only admins whose business has tipo_permiso = 1 (manejo de suscriptores) may call these.
 const BusinessModel = require('../models/businessModel');
 
 /**

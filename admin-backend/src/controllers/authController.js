@@ -32,7 +32,7 @@ const login = async (req, res, next) => {
       success: true,
       accessToken,
       businessId: admin.business_id,
-      canManageSubscriptions: admin.can_manage_subscriptions ?? false,
+      canManageSubscriptions: admin.canManageSubscriptions ?? false,
       isActive: admin.is_active ?? false,
     });
   } catch (err) {
@@ -164,7 +164,7 @@ const refreshToken = async (req, res, next) => {
       success: true,
       accessToken: newAccess,
       businessId: admin.business_id,
-      canManageSubscriptions: admin.can_manage_subscriptions ?? false,
+      canManageSubscriptions: admin.tipo_permiso === 1,
       isActive: admin.is_active ?? false,
     });
   } catch (err) { next(err); }

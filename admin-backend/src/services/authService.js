@@ -20,7 +20,7 @@ async function login(username, password) {
     id: admin.id,
     username: admin.username,
     business_id: admin.business_id,
-    can_manage_subscriptions: admin.can_manage_subscriptions ?? false,
+    canManageSubscriptions: admin.tipo_permiso === 1,
     is_active: admin.is_active ?? false,
   };
 }
