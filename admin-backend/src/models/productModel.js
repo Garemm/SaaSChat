@@ -3,6 +3,15 @@
 const db = require('../config/database');
 
 const ProductModel = {
+  // ── Find by item_code_empresa (for duplicate-key error messages) ──────────
+  async findByItemCode(businessId, itemCode) {
+    const { rows } = await db.query(
+      `SELECT id, name FROM products WHERE business_id = $1 AND item_code_empresa = $2 LIMIT 1`,
+      [businessId, itemCode]
+    );
+    return rows[0] || null;
+  },
+
   // ── List all products for a business, join inventory ──────────────────────
   async findAllByBusiness(businessId) {
     const { rows } = await db.query(

@@ -318,8 +318,10 @@ const confirm = async (req, res, next) => {
     }
 
     // ── Collect unknown categories still present in the submitted rows ────────
+    // Only consider a row's category as "unknown" if the user has NOT already
+    // assigned a category_id via the preview dropdown.
     const unknownSet = new Set(
-      rows.map((r) => r.missingCategory).filter(Boolean)
+      rows.filter((r) => r.missingCategory && !r.category_id).map((r) => r.missingCategory)
     );
     const unknownCategories = [...unknownSet];
 
@@ -341,9 +343,9 @@ const confirm = async (req, res, next) => {
       const existingCats   = await CategoryModel.findByBusiness(req.businessId);
       const categoryIndex  = new Map(existingCats.map((c) => [c.name.toLowerCase(), c.id]));
 
-      // Patch category_id on rows that had a missing category
+      // Patch category_id on rows that had a missing category AND no user-selected id
       resolvedRows = rows.map((row) => {
-        if (row.missingCategory) {
+        if (row.missingCategory && !row.category_id) {
           const id = categoryIndex.get(row.missingCategory.toLowerCase());
           return {
             ...row,
@@ -354,7 +356,8 @@ const confirm = async (req, res, next) => {
             _status:   row._status === 'warning' && (row._errors || []).length === 0 ? 'valid' : row._status,
           };
         }
-        return row;
+        // Row already has category_id (user selected it); just clear the stale flag
+        return row.missingCategory ? { ...row, missingCategory: null } : row;
       });
 
       console.log(`[import] Created ${created.length} new categories:`, created.map((c) => c.name));

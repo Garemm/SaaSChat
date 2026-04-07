@@ -2,6 +2,25 @@
 const ProductModel  = require('../models/productModel');
 const CategoryModel = require('../models/categoryModel');
 
+// ── Friendly duplicate item_code error ───────────────────────────────────────
+const UNIQUE_ITEM_CODE_CONSTRAINT = 'idx_products_item_code';
+
+const buildDuplicateItemCodeError = async (businessId, itemCode) => {
+  try {
+    const existing = await ProductModel.findByItemCode(businessId, itemCode);
+    const productName = existing?.name ? `"${existing.name}"` : 'otro producto';
+    return new Error(
+      `El código de ítem "${itemCode}" ya está en uso por el producto ${productName}. ` +
+      `Si deseas actualizarlo, edítalo desde la pestaña "Productos" o impórtalo desde "Importar Productos".`
+    );
+  } catch {
+    return new Error(
+      `El código de ítem "${itemCode}" ya está en uso por otro producto. ` +
+      `Puedes editarlo desde la pestaña "Productos" o importarlo desde "Importar Productos".`
+    );
+  }
+};
+
 const list = async (req, res, next) => {
   try {
     const products = await ProductModel.findAllByBusiness(req.businessId);
@@ -21,7 +40,12 @@ const create = async (req, res, next) => {
   try {
     const product = await ProductModel.create(req.businessId, req.body);
     res.status(201).json({ success: true, data: product });
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.code === '23505' && err.constraint === UNIQUE_ITEM_CODE_CONSTRAINT) {
+      return next(await buildDuplicateItemCodeError(req.businessId, req.body.item_code_empresa));
+    }
+    next(err);
+  }
 };
 
 const update = async (req, res, next) => {
@@ -29,7 +53,12 @@ const update = async (req, res, next) => {
     const product = await ProductModel.update(parseInt(req.params.id, 10), req.businessId, req.body);
     if (!product) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
     res.json({ success: true, data: product });
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.code === '23505' && err.constraint === UNIQUE_ITEM_CODE_CONSTRAINT) {
+      return next(await buildDuplicateItemCodeError(req.businessId, req.body.item_code_empresa));
+    }
+    next(err);
+  }
 };
 
 const remove = async (req, res, next) => {
