@@ -15,6 +15,7 @@ const analyticsController = require('../controllers/analyticsController');
 const subscriptionController       = require('../controllers/subscriptionController');
 const requireSubscriptionPermission = require('../middlewares/requireSubscriptionPermission');
 const businessTypeController = require('../controllers/businessTypeController');
+const pedidosController      = require('../controllers/pedidosController');
 
 // ── Auth (public) ─────────────────────────────────────────────────────────────
 router.post('/login',           authController.login);
@@ -81,5 +82,9 @@ router.get('/analytics/top-products/:business_id', analyticsController.getTopPro
 // ── Subscriptions (requires tipo_permiso = 1 — manejo de suscriptores) ──────────────
 router.get('/subscriptions',      requireSubscriptionPermission, subscriptionController.list);
 router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
+
+// ── Pedidos ───────────────────────────────────────────────────────────────────
+router.get('/orders/today',             pedidosController.listToday);
+router.put('/business/acepto-pedidos',  pedidosController.toggleAceptaPedidos);
 
 module.exports = router;

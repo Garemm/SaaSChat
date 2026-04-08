@@ -204,3 +204,10 @@ export const getBusinessTypes = () =>
   publicRequest(`${BASE}/business-types`)
     .then((res) => res.data ?? res);
 
+// ── Pedidos ───────────────────────────────────────────────────────────────────
+export const getTodaysOrders    = ()        => request(`${BASE}/orders/today`);
+export const setAceptaPedidos   = (value)   => request(`${BASE}/business/acepto-pedidos`, {
+  method: 'PUT',
+  body: JSON.stringify({ acepto_pedidos: value }),
+});
+

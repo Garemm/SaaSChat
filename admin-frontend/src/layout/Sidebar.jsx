@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const links = [
   { to: '/dashboard',   label: 'Dashboard',           icon: 'dashboard'  },
+  { to: '/orders',      label: 'Pedidos',              icon: 'orders'     },
   { to: '/products',    label: 'Productos',            icon: 'products'   },
   { to: '/categories',  label: 'Categorías',           icon: 'categories' },
   { to: '/import',      label: 'Importar Productos',   icon: 'upload'     },
