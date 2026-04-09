@@ -84,7 +84,6 @@ router.get('/subscriptions',      requireSubscriptionPermission, subscriptionCon
 router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
-router.get('/orders/today',             pedidosController.listToday);
-router.put('/business/acepto-pedidos',  pedidosController.toggleAceptaPedidos);
+router.get('/orders/today',             pedidosController.listToday);router.put('/orders/:id',               pedidosController.updateOrder);router.put('/business/acepto-pedidos',  pedidosController.toggleAceptaPedidos);
 
 module.exports = router;

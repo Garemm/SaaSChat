@@ -205,8 +205,12 @@ export const getBusinessTypes = () =>
     .then((res) => res.data ?? res);
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
-export const getTodaysOrders    = ()        => request(`${BASE}/orders/today`);
-export const setAceptaPedidos   = (value)   => request(`${BASE}/business/acepto-pedidos`, {
+export const getTodaysOrders  = ()              => request(`${BASE}/orders/today`);
+export const updateOrder      = (id, changes)   => request(`${BASE}/orders/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify(changes),
+});
+export const setAceptaPedidos = (value)         => request(`${BASE}/business/acepto-pedidos`, {
   method: 'PUT',
   body: JSON.stringify({ acepto_pedidos: value }),
 });

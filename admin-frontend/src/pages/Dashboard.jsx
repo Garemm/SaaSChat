@@ -166,7 +166,7 @@ const Dashboard = () => {
       <div className="page__header">
         <div>
           <h2>{business.name}</h2>
-          <p className="text-muted">{business.city} &middot; {business.category}</p>
+          <p className="text-muted">{business.city} &middot; {business.category_name || business.category}</p>
         </div>
       </div>
 

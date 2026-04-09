@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Icon        from '../components/ui/Icon';
 import Spinner     from '../components/ui/Spinner';
 import { useToast } from '../context/ToastContext';
-import { getTodaysOrders, setAceptaPedidos } from '../services/api';
+import { getTodaysOrders, setAceptaPedidos, updateOrder } from '../services/api';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const fmtTime = (iso) => {
@@ -45,6 +45,99 @@ const StatusBadge = ({ aceptado }) => (
   </span>
 );
 
+// ── OrderModal ────────────────────────────────────────────────────────────
+const OrderModal = ({ order, onClose, onSave, saving }) => {
+  const [aceptado, setAceptado] = useState(order.aceptado);
+  const [detalle,  setDetalle]  = useState(order.detalle_pedido || '');
+
+  return (
+    <div className="orders__modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+      <motion.div
+        className="orders__modal"
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1,    y: 0  }}
+        exit={{    opacity: 0, scale: 0.94, y: 12 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="orders__modal-header">
+          <h3 className="orders__modal-title">Pedido #{order.id}</h3>
+          <button className="orders__modal-close" onClick={onClose} aria-label="Cerrar">
+            <Icon name="x" size={18} />
+          </button>
+        </div>
+
+        {/* Info rows */}
+        <div className="orders__modal-body">
+          <div className="orders__modal-info">
+            <div className="orders__modal-field">
+              <span className="orders__modal-label">Cliente</span>
+              <span className="orders__modal-value">{order.nombre_cliente}</span>
+            </div>
+            <div className="orders__modal-field">
+              <span className="orders__modal-label">Teléfono</span>
+              <span className="orders__modal-value">{order.telefono}</span>
+            </div>
+            <div className="orders__modal-field">
+              <span className="orders__modal-label">Hora de recogida</span>
+              <span className="orders__modal-value">{order.hora_recogida}</span>
+            </div>
+            <div className="orders__modal-field">
+              <span className="orders__modal-label">Llegada</span>
+              <span className="orders__modal-value">{fmtTime(order.created_at)}</span>
+            </div>
+          </div>
+
+          {/* Editable detail */}
+          <label className="orders__modal-field orders__modal-field--full">
+            <span className="orders__modal-label">Detalle del pedido</span>
+            <textarea
+              className="orders__modal-textarea"
+              rows={4}
+              value={detalle}
+              onChange={(e) => setDetalle(e.target.value)}
+            />
+          </label>
+
+          {/* Accept / Decline */}
+          <div className="orders__modal-field orders__modal-field--full">
+            <span className="orders__modal-label">Estado</span>
+            <div className="orders__modal-state-btns">
+              <button
+                className={`orders__modal-state-btn orders__modal-state-btn--accept${aceptado ? ' orders__modal-state-btn--active' : ''}`}
+                onClick={() => setAceptado(true)}
+              >
+                <Icon name="check" size={15} /> Aceptar
+              </button>
+              <button
+                className={`orders__modal-state-btn orders__modal-state-btn--decline${!aceptado ? ' orders__modal-state-btn--active' : ''}`}
+                onClick={() => setAceptado(false)}
+              >
+                <Icon name="x" size={15} /> Declinar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="orders__modal-footer">
+          <button className="btn btn--ghost btn--sm" onClick={onClose} disabled={saving}>
+            Cancelar
+          </button>
+          <button
+            className="btn btn--primary btn--sm"
+            onClick={() => onSave({ aceptado, detalle_pedido: detalle })}
+            disabled={saving}
+          >
+            {saving ? <><Spinner size={13} />&nbsp;Guardando…</> : 'Guardar cambios'}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 // ── Row variants ──────────────────────────────────────────────────────────────
 const rowVariants = {
   hidden:  { opacity: 0, y: 10 },
@@ -64,6 +157,8 @@ export default function Pedidos() {
   const [toggling,      setToggling]      = useState(false);
   const [search,        setSearch]        = useState('');
   const [lastFetched,   setLastFetched]   = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [savingOrder,   setSavingOrder]   = useState(false);
 
   const intervalRef = useRef(null);
 
@@ -104,6 +199,21 @@ export default function Pedidos() {
     }
   };
 
+  const handleSaveOrder = async (changes) => {
+    if (!selectedOrder) return;
+    setSavingOrder(true);
+    try {
+      const { order } = await updateOrder(selectedOrder.id, changes);
+      setOrders((prev) => prev.map((o) => o.id === order.id ? order : o));
+      setSelectedOrder(null);
+      showToast('Pedido actualizado', 'success');
+    } catch (err) {
+      showToast(err.message || 'Error al guardar', 'error');
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
   // ── filtered list ─────────────────────────────────────────────────────────
   const filtered = orders.filter((o) => {
     if (!search) return true;
@@ -122,7 +232,19 @@ export default function Pedidos() {
 
   return (
     <section className="orders">
-      {/* ── Header ── */}
+      {/* ── Order detail modal ── */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <OrderModal
+            order={selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+            onSave={handleSaveOrder}
+            saving={savingOrder}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Header ── */}}
       <div className="orders__header">
         <div className="orders__header-left">
           <h1 className="orders__title">
@@ -228,6 +350,7 @@ export default function Pedidos() {
                   <th>Hora recogida</th>
                   <th>Hora llegada</th>
                   <th>Estado</th>
+                  <th></th>
                 </tr>
               </thead>
               <AnimatePresence mode="popLayout">
@@ -248,6 +371,15 @@ export default function Pedidos() {
                       <td className="orders__col-time">{order.hora_recogida || '—'}</td>
                       <td className="orders__col-time">{fmtTime(order.created_at)}</td>
                       <td><StatusBadge aceptado={order.aceptado} /></td>
+                      <td>
+                        <button
+                          className="btn btn--ghost btn--sm orders__action-btn"
+                          onClick={() => setSelectedOrder(order)}
+                          title="Ver / editar pedido"
+                        >
+                          <Icon name="edit" size={14} />
+                        </button>
+                      </td>
                     </motion.tr>
                   ))}
                 </tbody>

@@ -63,4 +63,53 @@ const toggleAceptaPedidos = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { listToday, toggleAceptaPedidos };
+/**
+ * PUT /admin/orders/:id
+ * Body: { aceptado?: boolean, detalle_pedido?: string }
+ * Updates the accepted status and/or order detail for one order.
+ */
+const updateOrder = async (req, res, next) => {
+  try {
+    const id         = parseInt(req.params.id, 10);
+    const businessId = req.businessId;
+
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({ success: false, error: 'ID de pedido inválido' });
+    }
+
+    const { aceptado, detalle_pedido } = req.body;
+    const updates = [];
+    const values  = [];
+    let   idx     = 1;
+
+    if (typeof aceptado === 'boolean') {
+      updates.push(`aceptado = $${idx++}`);
+      values.push(aceptado);
+    }
+    if (detalle_pedido !== undefined && detalle_pedido !== null) {
+      updates.push(`detalle_pedido = $${idx++}`);
+      values.push(String(detalle_pedido));
+    }
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, error: 'No hay campos para actualizar' });
+    }
+
+    values.push(id, businessId);
+    const { rows } = await db.query(
+      `UPDATE pedidos
+       SET ${updates.join(', ')}
+       WHERE id = $${idx++} AND business_id = $${idx}
+       RETURNING id, nombre_cliente, telefono, detalle_pedido,
+                 hora_recogida, fecha, aceptado, created_at`,
+      values
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ success: false, error: 'Pedido no encontrado' });
+    }
+
+    res.json({ success: true, order: rows[0] });
+  } catch (err) { next(err); }
+};
+
+module.exports = { listToday, toggleAceptaPedidos, updateOrder, updateOrder };
