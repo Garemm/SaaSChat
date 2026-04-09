@@ -244,7 +244,7 @@ export default function Pedidos() {
         )}
       </AnimatePresence>
 
-      {/* ── Header ── */}}
+      {/* ── Header ── */}
       <div className="orders__header">
         <div className="orders__header-left">
           <h1 className="orders__title">
