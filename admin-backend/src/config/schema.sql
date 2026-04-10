@@ -77,3 +77,10 @@ FOREIGN KEY (category) REFERENCES business_types(id);
 -- 7. Columna acepto_pedidos (si no existe)
 ALTER TABLE businesses
 ADD COLUMN IF NOT EXISTS acepto_pedidos BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- ── Chat UUID ────────────────────────────────────────────────────────────────
+-- Unique public identifier for each business chat interface.
+-- New businesses get a UUID v4 generated at creation time.
+-- Existing businesses are left NULL (no back-fill required).
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS chat_uuid UUID UNIQUE;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_businesses_chat_uuid ON businesses(chat_uuid);

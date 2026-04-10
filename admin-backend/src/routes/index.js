@@ -26,6 +26,15 @@ router.post('/refresh',         authController.refreshToken);
 router.post('/logout',          authController.logout);
 // ── Public catalogue endpoints ────────────────────────────────────────────────
 router.get('/business-types',   businessTypeController.list);
+// ── Public chat endpoint — resolves chat_uuid → business info ─────────────────
+router.get('/chat/:chat_uuid',  async (req, res, next) => {
+  try {
+    const BusinessModel = require('../models/businessModel');
+    const biz = await BusinessModel.findByChatUuid(req.params.chat_uuid);
+    if (!biz) return res.status(404).json({ success: false, error: 'Chat no encontrado' });
+    res.json({ success: true, data: biz });
+  } catch (err) { next(err); }
+});
 // ── All routes below require auth ────────────────────────────────────────────
 router.use(requireAuth);
 

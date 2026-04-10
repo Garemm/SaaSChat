@@ -10,11 +10,13 @@ import TopProductsChart from '../components/ui/TopProductsChart';
 // ── Chat URL helper ──────────────────────────────────────────────────────────
 // Uses VITE_CHAT_BASE_URL env var if set; otherwise infers from current hostname
 // so it works both locally (port 5173) and in production.
-const getChatUrl = (businessId) => {
+// New businesses use chat_uuid; legacy businesses (null uuid) fall back to business_id.
+const getChatUrl = (chatUuid, businessId) => {
   const origin =
     import.meta.env.VITE_CHAT_BASE_URL ??
 `${window.location.protocol}//${window.location.hostname}:5173`;
-  return `${origin}/chat/${businessId}`;
+  const slug = chatUuid ?? businessId;
+  return `${origin}/chat/${slug}`;
 };
 
 // ── Stat card ────────────────────────────────────────────────────────────────
@@ -35,11 +37,12 @@ const StatCard = ({ label, value, icon, color }) => (
 );
 
 // ── Chat link card ───────────────────────────────────────────────────────────
-const ChatLinkCard = ({ businessId }) => {
+const ChatLinkCard = ({ chatUuid, businessId }) => {
   const { addToast }    = useToast();
   const [copied, setCopied] = useState(false);
   const canvasRef           = useRef(null);
-  const chatUrl             = getChatUrl(businessId);
+  const chatUrl             = getChatUrl(chatUuid, businessId);
+  const isLegacy            = !chatUuid;
 
   const handleCopy = async () => {
     try {
@@ -58,7 +61,7 @@ const ChatLinkCard = ({ businessId }) => {
     const url  = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href     = url;
-    link.download = `chat-qr-${businessId}.png`;
+    link.download = `chat-qr-${chatUuid ?? businessId}.png`;
     link.click();
   };
 
@@ -74,6 +77,11 @@ const ChatLinkCard = ({ businessId }) => {
             <h3 className="chat-link-card__title">Link de tu Chat 27/7</h3>
             <p className="chat-link-card__sub">Comparte este enlace o QR con tus clientes</p>
             <p className="chat-link-card__sub">Ellos podrán preguntar a cualquier hora sobre stock, productos, horarios, precios, servicios y todo lo que gustes compartir con ellos.</p>
+            {isLegacy && (
+              <p className="chat-link-card__sub" style={{ color: 'var(--color-warning, #d97706)', marginTop: 4 }}>
+                ⚠ Este negocio fue creado antes de la actualización de chat. El enlace usa el ID interno.
+              </p>
+            )}
           </div>
         </div>
         <a
@@ -184,7 +192,7 @@ const Dashboard = () => {
 
       <TopProductsChart />
 
-      <ChatLinkCard businessId={businessId} />
+      <ChatLinkCard chatUuid={business.chat_uuid} businessId={businessId} />
     </div>
   );
 };
