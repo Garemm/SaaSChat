@@ -31,9 +31,9 @@ const login = async (req, res, next) => {
     res.json({
       success: true,
       accessToken,
-      businessId: admin.business_id,
-      canManageSubscriptions: admin.canManageSubscriptions ?? false,
-      isActive: admin.is_active ?? false,
+      businessId:  admin.business_id,
+      permissions: admin.permissions,
+      isActive:    admin.is_active ?? false,
     });
   } catch (err) {
     if (err.message === 'Credenciales incorrectas') {
@@ -163,9 +163,9 @@ const refreshToken = async (req, res, next) => {
     res.json({
       success: true,
       accessToken: newAccess,
-      businessId: admin.business_id,
-      canManageSubscriptions: admin.tipo_permiso === 1,
-      isActive: admin.is_active ?? false,
+      businessId:  admin.business_id,
+      permissions: authService.buildPermissions(admin),
+      isActive:    admin.is_active ?? false,
     });
   } catch (err) { next(err); }
 };

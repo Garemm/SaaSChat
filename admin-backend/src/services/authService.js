@@ -5,6 +5,23 @@ const AdminModel = require('../models/adminModel');
 
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
+// Permission keys — mirror columns in permissions_types table
+const PERM_KEYS = [
+  'dashboard', 'pedidos', 'productos', 'categorias', 'importar_productos',
+  'servicios', 'promociones', 'horarios', 'mi_haychat', 'mi_negocio',
+  'mi_webpage', 'suscripciones',
+];
+
+/**
+ * Builds a { key: bool } permissions object from a DB row joined with
+ * permissions_types. Any key that is not strictly TRUE becomes false.
+ */
+function buildPermissions(row) {
+  const perms = {};
+  for (const k of PERM_KEYS) perms[k] = row[k] === true;
+  return perms;
+}
+
 /**
  * Validates username/password using bcrypt.
  * Returns { id, username, business_id } on success, throws on failure.
@@ -17,11 +34,11 @@ async function login(username, password) {
   if (!match) throw new Error('Credenciales incorrectas');
 
   return {
-    id: admin.id,
-    username: admin.username,
+    id:          admin.id,
+    username:    admin.username,
     business_id: admin.business_id,
-    canManageSubscriptions: admin.tipo_permiso === 1,
-    is_active: admin.is_active ?? false,
+    permissions: buildPermissions(admin),
+    is_active:   admin.is_active ?? false,
   };
 }
 
@@ -72,4 +89,4 @@ async function changePassword(businessId, currentPassword, newPassword) {
   await AdminModel.updatePassword(admin.id, hashed);
 }
 
-module.exports = { login, createResetToken, resetPassword, changePassword };
+module.exports = { login, buildPermissions, createResetToken, resetPassword, changePassword };

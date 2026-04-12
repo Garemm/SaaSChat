@@ -6,12 +6,14 @@ import Icon from '../components/ui/Icon';
 const TITLES = {
   '/dashboard':       'Dashboard',
   '/products':        'Productos',
+  '/orders':        'Pedidos',
   '/categories':      'Categorías',
   '/import':          'Importar',
   '/services':        'Servicios',
   '/promotions':      'Promociones',
   '/hours':           'Horarios',
   '/business':        'Mi Negocio',
+  '/subscriptions': 'Suscripciones',
   '/change-password': 'Cambiar Contraseña',
 };
 

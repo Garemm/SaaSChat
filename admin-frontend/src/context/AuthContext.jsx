@@ -23,19 +23,19 @@ const AuthContext = createContext(null);
  *   user never experiences an expired-token interruption during active use.
  */
 export const AuthProvider = ({ children }) => {
-  const [businessId,             setBusinessId]             = useState(null);
-  const [canManageSubscriptions, setCanManageSubscriptions] = useState(false);
-  const [isActive,               setIsActive]               = useState(false);
-  const [isReady,                setIsReady]                = useState(false);
+  const [businessId,  setBusinessId]  = useState(null);
+  const [permissions, setPermissions] = useState({});   // boolean flags from permissions_types
+  const [isActive,    setIsActive]    = useState(false);
+  const [isReady,     setIsReady]     = useState(false);
   const refreshTimerRef = useRef(null);
 
   // ── Core refresh logic ───────────────────────────────────────────────────
   const silentRefresh = useCallback(async () => {
     try {
-      const { accessToken, businessId: bizId, canManageSubscriptions: cms, isActive: ia } = await apiRefresh();
+      const { accessToken, businessId: bizId, permissions: perms, isActive: ia } = await apiRefresh();
       setAccessToken(accessToken);
       setBusinessId(bizId);
-      setCanManageSubscriptions(cms ?? false);
+      setPermissions(perms ?? {});
       setIsActive(ia ?? false);
 
       // Re-arm timer for 14 minutes (fires 1 min before 15 min access token expires)
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       // Cookie invalid/expired — user must log in
       setAccessToken(null);
       setBusinessId(null);
-      setCanManageSubscriptions(false);
+      setPermissions({});
       setIsActive(false);
       return null;
     }
@@ -67,10 +67,10 @@ export const AuthProvider = ({ children }) => {
 
   // ── Public API ───────────────────────────────────────────────────────────
   const signIn = async (username, password) => {
-    const { accessToken, businessId: bizId, canManageSubscriptions: cms, isActive: ia } = await apiLogin(username, password);
+    const { accessToken, businessId: bizId, permissions: perms, isActive: ia } = await apiLogin(username, password);
     setAccessToken(accessToken);
     setBusinessId(bizId);
-    setCanManageSubscriptions(cms ?? false);
+    setPermissions(perms ?? {});
     setIsActive(ia ?? false);
 
     // Arm auto-refresh timer
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
     await apiLogout(); // best-effort: clears server cookie
     setAccessToken(null);
     setBusinessId(null);
-    setCanManageSubscriptions(false);
+    setPermissions({});
     setIsActive(false);
   };
 
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ businessId, canManageSubscriptions, isActive, isAuthenticated: !!businessId, signIn, signOut }}>
+    <AuthContext.Provider value={{ businessId, permissions, isActive, isAuthenticated: !!businessId, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

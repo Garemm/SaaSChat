@@ -89,8 +89,9 @@ router.delete('/hours/:id', hoursController.remove);
 router.get('/analytics/top-products/:business_id', analyticsController.getTopProducts);
 
 // ── Subscriptions (requires tipo_permiso = 1 — manejo de suscriptores) ──────────────
-router.get('/subscriptions',      requireSubscriptionPermission, subscriptionController.list);
-router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
+router.get('/subscriptions',           requireSubscriptionPermission, subscriptionController.list);
+router.put('/subscriptions/:id',        requireSubscriptionPermission, subscriptionController.toggle);
+router.put('/subscriptions/:id/plan',   requireSubscriptionPermission, subscriptionController.setPlan);
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 router.get('/orders/today',             pedidosController.listToday);router.put('/orders/:id',               pedidosController.updateOrder);router.put('/business/acepto-pedidos',  pedidosController.toggleAceptaPedidos);

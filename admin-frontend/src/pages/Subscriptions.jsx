@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getSubscriptions, toggleSubscription } from '../services/api';
+import { getSubscriptions, toggleSubscription, setSubscriptionPlan } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import Spinner from '../components/ui/Spinner';
 import Icon from '../components/ui/Icon';
@@ -55,11 +55,13 @@ const SearchBar = ({ value, onChange }) => (
 // ── Main component ────────────────────────────────────────────────────────────
 const Subscriptions = () => {
   const { showToast } = useToast();
-  const [businesses, setBusinesses] = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [toggling,   setToggling]   = useState(null); // id currently being toggled
-  const [query,      setQuery]      = useState('');
-  const [filter,     setFilter]     = useState('all'); // 'all' | 'active' | 'inactive'
+  const [businesses,    setBusinesses]    = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [toggling,      setToggling]      = useState(null);
+  const [savingPlan,    setSavingPlan]    = useState(null);   // id being saved
+  const [pendingPlans,  setPendingPlans]  = useState({});     // { [bizId]: inputValue }
+  const [query,         setQuery]         = useState('');
+  const [filter,        setFilter]        = useState('all');
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
   const loadBusinesses = useCallback(async () => {
@@ -75,6 +77,33 @@ const Subscriptions = () => {
   }, [showToast]);
 
   useEffect(() => { loadBusinesses(); }, [loadBusinesses]);
+
+  // ── Plan handlers ─────────────────────────────────────────────────────────
+  const handlePlanInput = (bizId, value) => {
+    setPendingPlans((prev) => ({ ...prev, [bizId]: value }));
+  };
+
+  const handleSavePlan = async (biz) => {
+    setSavingPlan(biz.id);
+    try {
+      const raw = pendingPlans[biz.id];
+      const newPlanId = raw === '' ? null : parseInt(raw, 10);
+      if (raw !== '' && (isNaN(newPlanId) || newPlanId < 1)) {
+        showToast('Ingresa un ID válido (número entero positivo) o deja el campo vacío', 'error');
+        return;
+      }
+      await setSubscriptionPlan(biz.id, newPlanId);
+      setBusinesses((prev) =>
+        prev.map((b) => b.id === biz.id ? { ...b, subscription_id: newPlanId } : b)
+      );
+      setPendingPlans((prev) => { const n = { ...prev }; delete n[biz.id]; return n; });
+      showToast('Plan actualizado', 'success');
+    } catch (err) {
+      showToast(err.message || 'Error al actualizar plan', 'error');
+    } finally {
+      setSavingPlan(null);
+    }
+  };
 
   // ── Toggle handler ────────────────────────────────────────────────────────
   const handleToggle = async (id, newValue) => {
@@ -187,6 +216,7 @@ const Subscriptions = () => {
                   <th>Categoría</th>
                   <th>Ciudad</th>
                   <th>Registro</th>
+                  <th>Plan (ID)</th>
                   <th>Estado</th>
                   <th className="sub__th-center">Acceso</th>
                 </tr>
@@ -212,6 +242,31 @@ const Subscriptions = () => {
                       </td>
                       <td className="sub__td-city">{biz.city || '—'}</td>
                       <td className="sub__td-date">{formatDate(biz.created_at)}</td>
+                      <td className="sub__td-plan">
+                        <div className="sub__plan-wrap">
+                          <input
+                            type="number"
+                            min="1"
+                            className="sub__plan-input"
+                            placeholder="—"
+                            value={pendingPlans[biz.id] !== undefined
+                              ? pendingPlans[biz.id]
+                              : (biz.subscription_id ?? '')}
+                            onChange={(e) => handlePlanInput(biz.id, e.target.value)}
+                            disabled={savingPlan === biz.id}
+                          />
+                          {pendingPlans[biz.id] !== undefined &&
+                           pendingPlans[biz.id] !== String(biz.subscription_id ?? '') && (
+                            <button
+                              className="btn btn--primary btn--sm sub__plan-save"
+                              onClick={() => handleSavePlan(biz)}
+                              disabled={savingPlan === biz.id}
+                            >
+                              {savingPlan === biz.id ? <Spinner size={13} /> : 'Guardar'}
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         <StatusBadge active={biz.is_active} />
                       </td>

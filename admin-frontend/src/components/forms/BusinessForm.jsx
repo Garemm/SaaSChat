@@ -7,7 +7,7 @@ const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const BusinessForm = ({ business, onSaved, onCancel }) => {
   const { addToast } = useToast();
-  const [form,       setForm]       = useState({ name: '', category: '', description: '', city: '', email: '', phone: '', webpage_link: '' });
+  const [form,       setForm]       = useState({ name: '', category: '', description: '', city: '', email: '', phone: '', webpage_link: '', google_maps_url: '' });
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(true);
   const [error,      setError]      = useState('');
@@ -24,13 +24,14 @@ const BusinessForm = ({ business, onSaved, onCancel }) => {
   useEffect(() => {
     if (business) {
       setForm({
-        name:         business.name,
-        category:     String(business.category ?? ''),
-        description:  business.description ?? '',
-        city:         business.city ?? '',
-        email:        business.email ?? '',
-        phone:        business.phone ?? '',
-        webpage_link: business.webpage_link ?? '',
+        name:            business.name,
+        category:        String(business.category ?? ''),
+        description:     business.description ?? '',
+        city:            business.city ?? '',
+        email:           business.email ?? '',
+        phone:           business.phone ?? '',
+        webpage_link:    business.webpage_link ?? '',
+        google_maps_url: business.google_maps_url ?? '',
       });
     }
   }, [business]);
@@ -99,6 +100,18 @@ const BusinessForm = ({ business, onSaved, onCancel }) => {
       <div className="form-group">
         <label className="form-label">Página web</label>
         <input className="form-input" type="url" value={form.webpage_link} onChange={(e) => set('webpage_link', e.target.value)} placeholder="Ej. https://www.minegocio.mx" />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">Ubicación en Google Maps</label>
+        <input
+          className="form-input"
+          type="url"
+          value={form.google_maps_url}
+          onChange={(e) => set('google_maps_url', e.target.value)}
+          placeholder="Ej. https://maps.app.goo.gl/..."
+        />
+        <span className="form-hint">Pega el enlace de Google Maps de tu negocio</span>
       </div>
 
       <div className="form-actions">

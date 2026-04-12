@@ -193,10 +193,14 @@ export const importConfirm = (rows, createMissingCategories = false) =>
   });
 
 // ── Subscriptions ─────────────────────────────────────────────────────────────
-export const getSubscriptions   = ()               => request(`${BASE}/subscriptions`);
-export const toggleSubscription = (id, is_active)  => request(`${BASE}/subscriptions/${id}`, {
+export const getSubscriptions     = ()                    => request(`${BASE}/subscriptions`);
+export const toggleSubscription   = (id, is_active)       => request(`${BASE}/subscriptions/${id}`, {
   method: 'PUT',
   body: JSON.stringify({ is_active }),
+});
+export const setSubscriptionPlan  = (id, subscription_id) => request(`${BASE}/subscriptions/${id}/plan`, {
+  method: 'PUT',
+  body: JSON.stringify({ subscription_id }),
 });
 
 // ── Business types (public — used by Register + BusinessForm) ─────────────────
@@ -205,12 +209,12 @@ export const getBusinessTypes = () =>
     .then((res) => res.data ?? res);
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
-export const getTodaysOrders  = ()              => request(`${BASE}/orders/today`);
-export const updateOrder      = (id, changes)   => request(`${BASE}/orders/${id}`, {
+export const getTodaysOrders    = ()              => request(`${BASE}/orders/today`, { cache: 'no-store' });
+export const updateOrder        = (id, changes)   => request(`${BASE}/orders/${id}`, {
   method: 'PUT',
   body: JSON.stringify(changes),
 });
-export const setAceptaPedidos = (value)         => request(`${BASE}/business/acepto-pedidos`, {
+export const setAceptaPedidos   = (value)   => request(`${BASE}/business/acepto-pedidos`, {
   method: 'PUT',
   body: JSON.stringify({ acepto_pedidos: value }),
 });

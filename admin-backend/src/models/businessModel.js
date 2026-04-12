@@ -23,7 +23,7 @@ const BusinessModel = {
     const { rows } = await db.query(
       `SELECT b.id, b.name, b.category, bt.name AS category_name,
               b.description, b.city, b.email, b.phone, b.webpage_link,
-              b.chat_uuid, b.created_at
+              b.google_maps_url, b.chat_uuid, b.created_at
        FROM businesses b
        LEFT JOIN business_types bt ON bt.id = b.category
        WHERE b.chat_uuid = $1`,
@@ -36,7 +36,7 @@ const BusinessModel = {
     const { rows } = await db.query(
       `SELECT b.id, b.name, b.category, bt.name AS category_name,
               b.description, b.city, b.email, b.phone, b.webpage_link,
-              b.chat_uuid, b.created_at
+              b.google_maps_url, b.chat_uuid, b.created_at
        FROM businesses b
        LEFT JOIN business_types bt ON bt.id = b.category
        WHERE b.id = $1`,
@@ -45,14 +45,14 @@ const BusinessModel = {
     return rows[0] || null;
   },
 
-  async update(id, { name, category, description, city, email, phone, webpage_link }) {
+  async update(id, { name, category, description, city, email, phone, webpage_link, google_maps_url }) {
     const { rows } = await db.query(
       `UPDATE businesses
        SET name = $1, category = $2, description = $3, city = $4,
-           email = $5, phone = $6, webpage_link = $7
-       WHERE id = $8
-       RETURNING id, name, category, description, city, email, phone, webpage_link`,
-      [name, parseInt(category, 10), description, city, email, phone, webpage_link, id]
+           email = $5, phone = $6, webpage_link = $7, google_maps_url = $8
+       WHERE id = $9
+       RETURNING id, name, category, description, city, email, phone, webpage_link, google_maps_url`,
+      [name, parseInt(category, 10), description, city, email, phone, webpage_link, google_maps_url ?? null, id]
     );
     if (!rows[0]) return null;
     // Enrich with category_name via second cheap query
@@ -83,12 +83,24 @@ const BusinessModel = {
   async listAll() {
     const { rows } = await db.query(
       `SELECT b.id, b.name, b.email, b.category, bt.name AS category_name,
-              b.city, b.is_active, b.chat_uuid, b.created_at
+              b.city, b.is_active, b.chat_uuid, b.created_at, b.subscription_id
        FROM businesses b
        LEFT JOIN business_types bt ON bt.id = b.category
        ORDER BY b.created_at DESC`
     );
     return rows;
+  },
+
+  /** Sets the subscription_id for one business. */
+  async setPlan(id, subscriptionId) {
+    const { rows } = await db.query(
+      `UPDATE businesses
+       SET subscription_id = $1
+       WHERE id = $2
+       RETURNING id, subscription_id`,
+      [subscriptionId ?? null, id]
+    );
+    return rows[0] || null;
   },
 
   /**

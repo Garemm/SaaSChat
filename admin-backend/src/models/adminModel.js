@@ -9,9 +9,14 @@ const AdminModel = {
   async findByUsernameForAuth(username) {
     const { rows } = await db.query(
       `SELECT a.id, a.username, a.password, a.business_id,
-              b.tipo_permiso, b.is_active
+              b.is_active,
+              pt.dashboard, pt.pedidos, pt.productos, pt.categorias,
+              pt.importar_productos, pt.servicios, pt.promociones, pt.horarios,
+              pt.mi_haychat, pt.mi_negocio, pt.mi_webpage, pt.suscripciones
        FROM admins a
        JOIN businesses b ON b.id = a.business_id
+       LEFT JOIN subscriptions s ON s.id = b.subscription_id
+       LEFT JOIN permissions_types pt ON pt.id = s.tipo_permiso
        WHERE a.username = $1`,
       [username]
     );
@@ -98,9 +103,14 @@ const AdminModel = {
   async findById(adminId) {
     const { rows } = await db.query(
       `SELECT a.id, a.username, a.business_id, a.refresh_token_hash,
-              b.tipo_permiso, b.is_active
+              b.is_active,
+              pt.dashboard, pt.pedidos, pt.productos, pt.categorias,
+              pt.importar_productos, pt.servicios, pt.promociones, pt.horarios,
+              pt.mi_haychat, pt.mi_negocio, pt.mi_webpage, pt.suscripciones
        FROM admins a
        JOIN businesses b ON b.id = a.business_id
+       LEFT JOIN subscriptions s ON s.id = b.subscription_id
+       LEFT JOIN permissions_types pt ON pt.id = s.tipo_permiso
        WHERE a.id = $1`,
       [adminId]
     );

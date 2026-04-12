@@ -78,6 +78,23 @@ FOREIGN KEY (category) REFERENCES business_types(id);
 ALTER TABLE businesses
 ADD COLUMN IF NOT EXISTS acepto_pedidos BOOLEAN NOT NULL DEFAULT FALSE;
 
+-- ── liberado column on pedidos ───────────────────────────────────────────────
+-- Marks whether an order has been "released" (handed to the customer / closed).
+-- Admin panel only shows orders where liberado = FALSE.
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS liberado BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- ── rechazado column on pedidos ────────────────────────────────────────────
+-- true = the admin explicitly rejected this order.
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS rechazado BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- ── notas_admin column on pedidos ────────────────────────────────────────────
+-- Free-text notes the admin can write on each order.
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS notas_admin TEXT;
+
+-- ── pedido_listo column on pedidos ─────────────────────────────────────────
+-- true = the order is ready for pickup. Set by the admin after accepting.
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS pedido_listo BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- ── Chat UUID ────────────────────────────────────────────────────────────────
 -- Unique public identifier for each business chat interface.
 -- New businesses get a UUID v4 generated at creation time.

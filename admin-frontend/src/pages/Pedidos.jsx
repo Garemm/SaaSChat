@@ -39,16 +39,39 @@ const ToggleSwitch = ({ checked, onChange, disabled, label }) => (
 );
 
 // ── StatusBadge ───────────────────────────────────────────────────────────────
-const StatusBadge = ({ aceptado }) => (
-  <span className={`orders__badge orders__badge--${aceptado ? 'accepted' : 'pending'}`}>
-    {aceptado ? 'Aceptado' : 'Pendiente'}
-  </span>
+const StatusBadge = ({ aceptado, rechazado }) => {
+  if (rechazado) return <span className="orders__badge orders__badge--declined">Rechazado</span>;
+  if (aceptado)  return <span className="orders__badge orders__badge--accepted">Aceptado</span>;
+  return <span className="orders__badge orders__badge--pending">Pendiente</span>;
+};
+
+// ── ConfirmModal ──────────────────────────────────────────────────────
+const ConfirmModal = ({ message, onConfirm, onCancel, loading, confirmLabel = 'Sí, liberar', loadingLabel = 'Liberando…' }) => (
+  <div className="orders__modal-overlay" role="dialog" aria-modal="true" onClick={onCancel}>
+    <motion.div
+      className="orders__modal orders__modal--confirm"
+      initial={{ opacity: 0, scale: 0.94, y: 12 }}
+      animate={{ opacity: 1, scale: 1,    y: 0  }}
+      exit={{    opacity: 0, scale: 0.94, y: 12 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <p className="orders__confirm-msg">{message}</p>
+      <div className="orders__confirm-btns">
+        <button className="btn btn--ghost btn--sm" onClick={onCancel} disabled={loading}>No</button>
+        <button className="btn btn--success btn--sm" onClick={onConfirm} disabled={loading}>
+          {loading ? <><Spinner size={13} />&nbsp;{loadingLabel}</> : confirmLabel}
+        </button>
+      </div>
+    </motion.div>
+  </div>
 );
 
 // ── OrderModal ────────────────────────────────────────────────────────────
 const OrderModal = ({ order, onClose, onSave, saving }) => {
-  const [aceptado, setAceptado] = useState(order.aceptado);
-  const [detalle,  setDetalle]  = useState(order.detalle_pedido || '');
+  const [decision,   setDecision]   = useState(null); // null | 'accept' | 'reject'
+  const [notasAdmin, setNotasAdmin] = useState(order.notas_admin || '');
+  const isPending = order.aceptado !== true && !order.rechazado;
 
   return (
     <div className="orders__modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -89,34 +112,45 @@ const OrderModal = ({ order, onClose, onSave, saving }) => {
             </div>
           </div>
 
-          {/* Editable detail */}
-          <label className="orders__modal-field orders__modal-field--full">
+          {/* Read-only detail */}
+          <div className="orders__modal-field orders__modal-field--full">
             <span className="orders__modal-label">Detalle del pedido</span>
+            <p className="orders__modal-readonly">{order.detalle_pedido || '—'}</p>
+          </div>
+
+          {/* Admin notes */}
+          <label className="orders__modal-field orders__modal-field--full">
+            <span className="orders__modal-label">Notas del administrador</span>
             <textarea
               className="orders__modal-textarea"
-              rows={4}
-              value={detalle}
-              onChange={(e) => setDetalle(e.target.value)}
+              rows={3}
+              placeholder="Escribe notas al cliente sobre este pedido (opcional)"
+              value={notasAdmin}
+              onChange={(e) => setNotasAdmin(e.target.value)}
             />
           </label>
 
-          {/* Accept / Decline */}
+          {/* Status: editable buttons if still pending, read-only badge if already decided */}
           <div className="orders__modal-field orders__modal-field--full">
             <span className="orders__modal-label">Estado</span>
-            <div className="orders__modal-state-btns">
-              <button
-                className={`orders__modal-state-btn orders__modal-state-btn--accept${aceptado ? ' orders__modal-state-btn--active' : ''}`}
-                onClick={() => setAceptado(true)}
-              >
-                <Icon name="check" size={15} /> Aceptar
-              </button>
-              <button
-                className={`orders__modal-state-btn orders__modal-state-btn--decline${!aceptado ? ' orders__modal-state-btn--active' : ''}`}
-                onClick={() => setAceptado(false)}
-              >
-                <Icon name="x" size={15} /> Declinar
-              </button>
-            </div>
+            {isPending ? (
+              <div className="orders__modal-state-btns">
+                <button
+                  className={`orders__modal-state-btn orders__modal-state-btn--accept${decision === 'accept' ? ' orders__modal-state-btn--active' : ''}`}
+                  onClick={() => setDecision('accept')}
+                >
+                  <Icon name="check" size={15} /> Aceptar
+                </button>
+                <button
+                  className={`orders__modal-state-btn orders__modal-state-btn--decline${decision === 'reject' ? ' orders__modal-state-btn--active' : ''}`}
+                  onClick={() => setDecision('reject')}
+                >
+                  <Icon name="x" size={15} /> Rechazar
+                </button>
+              </div>
+            ) : (
+              <StatusBadge aceptado={order.aceptado} rechazado={order.rechazado} />
+            )}
           </div>
         </div>
 
@@ -127,8 +161,16 @@ const OrderModal = ({ order, onClose, onSave, saving }) => {
           </button>
           <button
             className="btn btn--primary btn--sm"
-            onClick={() => onSave({ aceptado, detalle_pedido: detalle })}
-            disabled={saving}
+            onClick={() => {
+              if (isPending) {
+                if (decision === 'accept') onSave({ aceptado: true, notas_admin: notasAdmin });
+                else if (decision === 'reject') onSave({ rechazado: true, notas_admin: notasAdmin });
+              } else {
+                onSave({ notas_admin: notasAdmin });
+              }
+            }}
+            disabled={saving || (isPending && decision === null)}
+            title={isPending && decision === null ? 'Selecciona Aceptar o Rechazar primero' : undefined}
           >
             {saving ? <><Spinner size={13} />&nbsp;Guardando…</> : 'Guardar cambios'}
           </button>
@@ -146,7 +188,7 @@ const rowVariants = {
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
-const REFRESH_INTERVAL = 30_000; // 30 seconds
+const REFRESH_INTERVAL = 10_000; // 10 seconds
 
 export default function Pedidos() {
   const { showToast } = useToast();
@@ -159,14 +201,32 @@ export default function Pedidos() {
   const [lastFetched,   setLastFetched]   = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [savingOrder,   setSavingOrder]   = useState(false);
+  const [liberarOrder,  setLiberarOrder]  = useState(null);  // order pending confirmation
+  const [liberating,    setLiberating]    = useState(false);
+  const [listoOrder,    setListoOrder]    = useState(null);  // order pending "pedido listo" confirmation
+  const [markingListo,  setMarkingListo]  = useState(false);
 
-  const intervalRef = useRef(null);
+  const knownIdsRef     = useRef(new Set());
+  // Always points to latest fetch function without recreating interval
+  const fetchOrdersRef  = useRef(null);
 
-  const fetchOrders = useCallback(async (silent = false) => {
+  // Define as plain function assigned to ref on every render
+  fetchOrdersRef.current = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
       const data = await getTodaysOrders();
-      setOrders(data.orders ?? []);
+      const incoming = data.orders ?? [];
+      if (silent && knownIdsRef.current.size > 0) {
+        const newOnes = incoming.filter((o) => !knownIdsRef.current.has(o.id));
+        if (newOnes.length > 0) {
+          showToast(
+            `¡${newOnes.length} nuevo${newOnes.length > 1 ? 's pedidos' : ' pedido'} recibido!`,
+            'success'
+          );
+        }
+      }
+      knownIdsRef.current = new Set(incoming.map((o) => o.id));
+      setOrders(incoming);
       setAceptaPedidosState(data.acepto_pedidos ?? false);
       setLastFetched(new Date());
     } catch (err) {
@@ -174,14 +234,24 @@ export default function Pedidos() {
     } finally {
       if (!silent) setLoading(false);
     }
-  }, [showToast]);
+  };
 
-  // initial load + polling
+  const fetchOrders = useCallback((silent = false) => fetchOrdersRef.current(silent), []);
+
+  // Start interval exactly once — ref always has latest function so no stale closure
   useEffect(() => {
-    fetchOrders();
-    intervalRef.current = setInterval(() => fetchOrders(true), REFRESH_INTERVAL);
-    return () => clearInterval(intervalRef.current);
-  }, [fetchOrders]);
+    fetchOrdersRef.current(false);
+    const timer = setInterval(() => fetchOrdersRef.current(true), REFRESH_INTERVAL);
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchOrdersRef.current(true); };
+    const onFocus   = () => fetchOrdersRef.current(true);
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleToggleAceptaPedidos = async (value) => {
     setToggling(true);
@@ -205,12 +275,42 @@ export default function Pedidos() {
     try {
       const { order } = await updateOrder(selectedOrder.id, changes);
       setOrders((prev) => prev.map((o) => o.id === order.id ? order : o));
-      setSelectedOrder(null);
       showToast('Pedido actualizado', 'success');
     } catch (err) {
       showToast(err.message || 'Error al guardar', 'error');
     } finally {
       setSavingOrder(false);
+      setSelectedOrder(null);
+    }
+  };
+
+  const handleMarkListo = async () => {
+    if (!listoOrder) return;
+    setMarkingListo(true);
+    try {
+      const { order } = await updateOrder(listoOrder.id, { pedido_listo: true });
+      setOrders((prev) => prev.map((o) => o.id === order.id ? order : o));
+      showToast('Pedido marcado como listo', 'success');
+    } catch (err) {
+      showToast(err.message || 'Error al marcar pedido', 'error');
+    } finally {
+      setMarkingListo(false);
+      setListoOrder(null);
+    }
+  };
+
+  const handleLiberarOrder = async () => {
+    if (!liberarOrder) return;
+    setLiberating(true);
+    try {
+      await updateOrder(liberarOrder.id, { liberado: true });
+      setOrders((prev) => prev.filter((o) => o.id !== liberarOrder.id));
+      showToast('Pedido liberado', 'success');
+    } catch (err) {
+      showToast(err.message || 'Error al liberar', 'error');
+    } finally {
+      setLiberating(false);
+      setLiberarOrder(null);
     }
   };
 
@@ -226,9 +326,10 @@ export default function Pedidos() {
   });
 
   // ── stats ─────────────────────────────────────────────────────────────────
-  const totalHoy    = orders.length;
-  const aceptados   = orders.filter((o) => o.aceptado).length;
-  const pendientes  = totalHoy - aceptados;
+  const totalHoy   = orders.length;
+  const aceptados  = orders.filter((o) => o.aceptado).length;
+  const rechazados = orders.filter((o) => o.rechazado).length;
+  const pendientes = totalHoy - aceptados - rechazados;
 
   return (
     <section className="orders">
@@ -240,6 +341,32 @@ export default function Pedidos() {
             onClose={() => setSelectedOrder(null)}
             onSave={handleSaveOrder}
             saving={savingOrder}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Pedido listo confirm dialog ── */}
+      <AnimatePresence>
+        {listoOrder && (
+          <ConfirmModal
+            message={`¿Marcar el pedido #${listoOrder.id} como listo?`}
+            onConfirm={handleMarkListo}
+            onCancel={() => setListoOrder(null)}
+            loading={markingListo}
+            confirmLabel="Sí, está listo"
+            loadingLabel="Marcando…"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Liberar confirm dialog ── */}
+      <AnimatePresence>
+        {liberarOrder && (
+          <ConfirmModal
+            message={`¿Está seguro que desea liberar el pedido #${liberarOrder.id}?`}
+            onConfirm={handleLiberarOrder}
+            onCancel={() => setLiberarOrder(null)}
+            loading={liberating}
           />
         )}
       </AnimatePresence>
@@ -287,7 +414,8 @@ export default function Pedidos() {
         {[
           { label: 'Total hoy',  value: totalHoy,   color: 'blue'   },
           { label: 'Aceptados',  value: aceptados,  color: 'green'  },
-          { label: 'Pendientes', value: pendientes,  color: 'yellow' },
+          { label: 'Rechazados', value: rechazados, color: 'red'    },
+          { label: 'Pendientes', value: pendientes, color: 'yellow' },
         ].map((s) => (
           <div key={s.label} className={`orders__stat-chip orders__stat-chip--${s.color}`}>
             <span className="orders__stat-value">{s.value}</span>
@@ -347,7 +475,6 @@ export default function Pedidos() {
                   <th>Cliente</th>
                   <th>Teléfono</th>
                   <th>Detalle del pedido</th>
-                  <th>Hora recogida</th>
                   <th>Hora llegada</th>
                   <th>Estado</th>
                   <th></th>
@@ -368,17 +495,41 @@ export default function Pedidos() {
                       <td className="orders__col-name">{order.nombre_cliente || '—'}</td>
                       <td className="orders__col-phone">{order.telefono || '—'}</td>
                       <td className="orders__col-detail">{order.detalle_pedido || '—'}</td>
-                      <td className="orders__col-time">{order.hora_recogida || '—'}</td>
                       <td className="orders__col-time">{fmtTime(order.created_at)}</td>
-                      <td><StatusBadge aceptado={order.aceptado} /></td>
+                      <td><StatusBadge aceptado={order.aceptado} rechazado={order.rechazado} /></td>
                       <td>
-                        <button
-                          className="btn btn--ghost btn--sm orders__action-btn"
-                          onClick={() => setSelectedOrder(order)}
-                          title="Ver / editar pedido"
-                        >
-                          <Icon name="edit" size={14} />
-                        </button>
+                        <div className="orders__row-actions">
+                          <button
+                            className="btn btn--ghost btn--sm orders__action-btn"
+                            onClick={() => setSelectedOrder(order)}
+                            title="Ver / editar pedido"
+                          >
+                            <Icon name="edit" size={14} />
+                          </button>
+                          {order.aceptado === true && !order.pedido_listo && (
+                            <button
+                              className="btn btn--warning btn--sm orders__action-btn"
+                              onClick={() => setListoOrder(order)}
+                              title="Marcar como pedido listo"
+                            >
+                              <Icon name="check" size={14} /> Pedido listo
+                            </button>
+                          )}
+                          {order.aceptado === true && order.pedido_listo && (
+                            <span className="orders__listo-badge">
+                              <Icon name="check" size={13} /> Listo
+                            </span>
+                          )}
+                          {(order.aceptado || order.rechazado) && (
+                            <button
+                              className="btn btn--success btn--sm orders__action-btn"
+                              onClick={() => setLiberarOrder(order)}
+                              title="Liberar pedido"
+                            >
+                              <Icon name="check" size={14} /> Liberar pedido
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

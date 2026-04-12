@@ -12,11 +12,13 @@ const listToday = async (req, res, next) => {
     const [ordersResult, businessResult] = await Promise.all([
       db.query(
         `SELECT id, nombre_cliente, telefono, detalle_pedido,
-                hora_recogida, fecha, aceptado, created_at
+                hora_recogida, fecha, aceptado, rechazado, liberado, pedido_listo, notas_admin, created_at
          FROM pedidos
          WHERE business_id = $1
-           AND fecha = CURRENT_DATE
+           AND created_at::date = CURRENT_DATE
+           AND liberado = FALSE
          ORDER BY created_at DESC`,
+
         [businessId]
       ),
       db.query(
@@ -77,7 +79,7 @@ const updateOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'ID de pedido inválido' });
     }
 
-    const { aceptado, detalle_pedido } = req.body;
+    const { aceptado, rechazado, detalle_pedido, liberado, notas_admin } = req.body;
     const updates = [];
     const values  = [];
     let   idx     = 1;
@@ -86,9 +88,25 @@ const updateOrder = async (req, res, next) => {
       updates.push(`aceptado = $${idx++}`);
       values.push(aceptado);
     }
+    if (typeof rechazado === 'boolean') {
+      updates.push(`rechazado = $${idx++}`);
+      values.push(rechazado);
+    }
     if (detalle_pedido !== undefined && detalle_pedido !== null) {
       updates.push(`detalle_pedido = $${idx++}`);
       values.push(String(detalle_pedido));
+    }
+    if (typeof liberado === 'boolean') {
+      updates.push(`liberado = $${idx++}`);
+      values.push(liberado);
+    }
+    if (notas_admin !== undefined) {
+      updates.push(`notas_admin = $${idx++}`);
+      values.push(notas_admin === null ? null : String(notas_admin));
+    }
+    if (typeof req.body.pedido_listo === 'boolean') {
+      updates.push(`pedido_listo = $${idx++}`);
+      values.push(req.body.pedido_listo);
     }
     if (updates.length === 0) {
       return res.status(400).json({ success: false, error: 'No hay campos para actualizar' });
@@ -100,7 +118,7 @@ const updateOrder = async (req, res, next) => {
        SET ${updates.join(', ')}
        WHERE id = $${idx++} AND business_id = $${idx}
        RETURNING id, nombre_cliente, telefono, detalle_pedido,
-                 hora_recogida, fecha, aceptado, created_at`,
+                 hora_recogida, fecha, aceptado, rechazado, liberado, pedido_listo, notas_admin, created_at`,
       values
     );
 
@@ -112,4 +130,4 @@ const updateOrder = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { listToday, toggleAceptaPedidos, updateOrder, updateOrder };
+module.exports = { listToday, toggleAceptaPedidos, updateOrder };

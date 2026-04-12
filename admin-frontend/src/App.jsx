@@ -21,6 +21,7 @@ import Import         from './pages/Import';
 import ChangePassword from './pages/ChangePassword';
 import Subscriptions from './pages/Subscriptions';
 import Pedidos       from './pages/Pedidos';
+import MiHayChat    from './pages/MiHayChat';
 
 // Inner component so we can use useLocation inside BrowserRouter
 const AnimatedRoutes = () => {
@@ -52,6 +53,7 @@ const AnimatedRoutes = () => {
                   <Route path="change-password"  element={<PageTransition><ChangePassword /></PageTransition>} />
                   <Route path="subscriptions"    element={<PageTransition><Subscriptions /></PageTransition>} />
                   <Route path="orders"           element={<PageTransition><Pedidos /></PageTransition>} />
+                  <Route path="mi-haychat"       element={<PageTransition><MiHayChat /></PageTransition>} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>

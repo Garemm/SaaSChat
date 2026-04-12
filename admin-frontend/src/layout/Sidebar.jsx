@@ -2,17 +2,22 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Icon from '../components/ui/Icon';
 import { useAuth } from '../context/AuthContext';
+import logo from '../images/hayChat.png';
 
-const links = [
-  { to: '/dashboard',   label: 'Dashboard',           icon: 'dashboard'  },
-  { to: '/orders',      label: 'Pedidos',              icon: 'orders'     },
-  { to: '/products',    label: 'Productos',            icon: 'products'   },
-  { to: '/categories',  label: 'Categorías',           icon: 'categories' },
-  { to: '/import',      label: 'Importar Productos',   icon: 'upload'     },
-  { to: '/services',    label: 'Servicios',            icon: 'services'   },
-  { to: '/promotions',  label: 'Promociones',          icon: 'promotions' },
-  { to: '/hours',       label: 'Horarios',             icon: 'hours'      },
-  { to: '/business',    label: 'Mi Negocio',           icon: 'business'   },
+// All possible sidebar links in display order.
+// permKey maps to the corresponding boolean column in permissions_types.
+const ALL_LINKS = [
+  { to: '/dashboard',     label: 'Dashboard',          icon: 'dashboard',     permKey: 'dashboard'          },
+  { to: '/orders',        label: 'Pedidos',             icon: 'orders',        permKey: 'pedidos'            },
+  { to: '/products',      label: 'Productos',           icon: 'products',      permKey: 'productos'          },
+  { to: '/categories',    label: 'Categorías',          icon: 'categories',    permKey: 'categorias'         },
+  { to: '/import',        label: 'Importar Productos',  icon: 'upload',        permKey: 'importar_productos' },
+  { to: '/services',      label: 'Servicios',           icon: 'services',      permKey: 'servicios'          },
+  { to: '/promotions',    label: 'Promociones',         icon: 'promotions',    permKey: 'promociones'        },
+  { to: '/hours',         label: 'Horarios',            icon: 'hours',         permKey: 'horarios'           },
+  { to: '/mi-haychat',    label: 'Mi hayChat',          icon: 'qrcode',        permKey: 'mi_haychat'         },
+  { to: '/business',      label: 'Mi Negocio',          icon: 'business',      permKey: 'mi_negocio'         },
+  { to: '/subscriptions', label: 'Suscripciones',       icon: 'subscriptions', permKey: 'suscripciones'      },
 ];
 
 const bottomLinks = [
@@ -77,40 +82,53 @@ const SidebarLink = ({ to, label, icon, onClick, locked }) => (
 );
 
 const Sidebar = ({ onClose }) => {
-  const { canManageSubscriptions, isActive } = useAuth();
+  const { permissions, isActive } = useAuth();
   const locked = !isActive;
   const handleNav = () => {
     if (window.innerWidth < 900) onClose?.();
   };
 
-  const visibleLinks = canManageSubscriptions
-    ? [...links, { to: '/subscriptions', label: 'Suscripciones', icon: 'subscriptions' }]
-    : links;
+  // Only show links whose permission key is TRUE in permissions_types.
+  // Falls back to empty list when permissions object is empty (no plan assigned).
+  const visibleLinks = ALL_LINKS.filter((l) => permissions[l.permKey] === true);
 
   return (
     <aside className={`sidebar${locked ? ' sidebar--locked' : ''}`}>
-      {/* Brand */}
+      {/* Brand / Logo */}
       <motion.div
         className="sidebar__brand"
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
+        {/* Animated accent line at top */}
         <motion.span
-          className="sidebar__brand-dot"
-          animate={{ boxShadow: ['0 0 8px rgba(99,102,241,0.6)', '0 0 18px rgba(99,102,241,0.9)', '0 0 8px rgba(99,102,241,0.6)'] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="sidebar__brand-line"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
         />
-        Admin Panel
+
+        {/* Logo card */}
+        <div className="sidebar__logo-wrap">
+          <motion.div
+            className="sidebar__logo-glow"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <img src={logo} alt="hayChat Business" className="sidebar__logo-img" />
+        </div>
+
+        {/* Close button — mobile only */}
         <motion.button
           className="sidebar__close"
           onClick={onClose}
           aria-label="Cerrar menú"
-          whileHover={{ rotate: 90, scale: 1.1 }}
+          whileHover={{ rotate: 90, scale: 1.15 }}
           whileTap={{ scale: 0.85 }}
           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         >
-          <Icon name="x" size={18} />
+          <Icon name="x" size={16} />
         </motion.button>
       </motion.div>
 
