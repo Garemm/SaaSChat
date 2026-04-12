@@ -12,6 +12,7 @@ const links = [
   { to: '/promotions',  label: 'Promociones',          icon: 'promotions' },
   { to: '/hours',       label: 'Horarios',             icon: 'hours'      },
   { to: '/business',    label: 'Mi Negocio',           icon: 'business'   },
+  { to: '/pricing',     label: 'Planes y pagos',       icon: 'subscriptions' },
 ];
 
 const bottomLinks = [

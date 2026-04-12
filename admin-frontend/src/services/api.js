@@ -69,6 +69,9 @@ const request = async (url, options = {}) => {
   return json.data ?? json;
 };
 
+// Reusable authenticated request helper (used by feature-specific services)
+export const authReq = request;
+
 /**
  * Public (unauthenticated) request — no auth header, no 401 retry.
  */

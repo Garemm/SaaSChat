@@ -12,6 +12,9 @@ const TITLES = {
   '/promotions':      'Promociones',
   '/hours':           'Horarios',
   '/business':        'Mi Negocio',
+  '/pricing':         'Planes y pagos',
+  '/subscriptions':   'Suscripciones',
+  '/subscription/success': 'Pago exitoso',
   '/change-password': 'Cambiar Contraseña',
 };
 

@@ -46,7 +46,8 @@ const verifyRefresh = (token) => jwt.verify(token, REFRESH_SECRET);
 const REFRESH_COOKIE_OPTS = {
   httpOnly: true,
   secure:   process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  // Use Lax so the refresh cookie survives top-level redirects from Stripe Checkout
+  sameSite: 'lax',
   maxAge:   7 * 24 * 60 * 60 * 1000, // 7 días en ms
   path:     '/admin',
 };

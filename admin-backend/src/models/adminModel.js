@@ -138,6 +138,15 @@ const AdminModel = {
       ALTER TABLE admins
       ADD COLUMN IF NOT EXISTS refresh_token_hash VARCHAR(255)
     `);
+    
+    // Ensure Stripe subscriptions table exists
+    try {
+      const stripeModel = require('./stripeModel');
+      await stripeModel.ensureStripeSubscriptionsTable();
+    } catch (error) {
+      console.error('Warning: Could not create Stripe subscriptions table:', error.message);
+      // Don't throw - allow server to start even if Stripe table creation fails
+    }
   },
 };
 

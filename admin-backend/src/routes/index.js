@@ -15,6 +15,7 @@ const analyticsController = require('../controllers/analyticsController');
 const subscriptionController       = require('../controllers/subscriptionController');
 const requireSubscriptionPermission = require('../middlewares/requireSubscriptionPermission');
 const businessTypeController = require('../controllers/businessTypeController');
+const stripeController = require('../controllers/stripeController');
 
 // ── Auth (public) ─────────────────────────────────────────────────────────────
 router.post('/login',           authController.login);
@@ -81,5 +82,11 @@ router.get('/analytics/top-products/:business_id', analyticsController.getTopPro
 // ── Subscriptions (requires tipo_permiso = 1 — manejo de suscriptores) ──────────────
 router.get('/subscriptions',      requireSubscriptionPermission, subscriptionController.list);
 router.put('/subscriptions/:id',  requireSubscriptionPermission, subscriptionController.toggle);
+
+// ── Stripe Payments ───────────────────────────────────────────────────────────
+router.post('/stripe/create-checkout-session', stripeController.createCheckoutSession);
+router.post('/stripe/create-portal-session',   stripeController.createPortalSession);
+router.post('/stripe/sync-checkout-session',   stripeController.syncCheckoutSession);
+router.get('/stripe/subscription-status',      stripeController.getSubscriptionStatus);
 
 module.exports = router;

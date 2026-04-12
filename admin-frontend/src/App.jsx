@@ -20,6 +20,8 @@ import Hours          from './pages/Hours';
 import Import         from './pages/Import';
 import ChangePassword from './pages/ChangePassword';
 import Subscriptions from './pages/Subscriptions';
+import Pricing from './pages/Pricing';
+import SubscriptionSuccess from './pages/SubscriptionSuccess';
 
 // Inner component so we can use useLocation inside BrowserRouter
 const AnimatedRoutes = () => {
@@ -50,6 +52,8 @@ const AnimatedRoutes = () => {
                   <Route path="import"           element={<PageTransition><Import /></PageTransition>}         />
                   <Route path="change-password"  element={<PageTransition><ChangePassword /></PageTransition>} />
                   <Route path="subscriptions"    element={<PageTransition><Subscriptions /></PageTransition>} />
+                  <Route path="pricing"          element={<PageTransition><Pricing /></PageTransition>} />
+                  <Route path="subscription/success" element={<PageTransition><SubscriptionSuccess /></PageTransition>} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
