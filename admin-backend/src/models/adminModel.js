@@ -1,5 +1,5 @@
 // ── Admin Model ──────────────────────────────────────────────────────────────
-const db = require('../config/database');
+import db from '../config/database.js';
 
 const AdminModel = {
   /**
@@ -151,4 +151,4 @@ const AdminModel = {
   },
 };
 
-module.exports = AdminModel;
+export default AdminModel;

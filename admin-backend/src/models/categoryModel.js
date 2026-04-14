@@ -1,5 +1,5 @@
 // ── Category Model ──────────────────────────────────────────────────────────
-const db = require('../config/database');
+import db from '../config/database.js';
 
 const CategoryModel = {
   async findByBusiness(businessId) {
@@ -86,4 +86,4 @@ const CategoryModel = {
   },
 };
 
-module.exports = CategoryModel;
+export default CategoryModel;

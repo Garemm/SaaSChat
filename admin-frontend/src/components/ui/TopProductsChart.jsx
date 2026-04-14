@@ -67,7 +67,7 @@ const TopProductsChart = () => {
     <div className="top-products-chart">
       <div className="top-products-chart__header">
         <h3 className="top-products-chart__title">Productos más consultados</h3>
-        <span className="top-products-chart__sub">Todos los registros · se actualiza automáticamente</span>
+        <span className="top-products-chart__sub">Top 10 · se actualiza automáticamente</span>
       </div>
 
       {error ? (

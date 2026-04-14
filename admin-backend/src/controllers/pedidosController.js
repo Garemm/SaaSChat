@@ -1,5 +1,5 @@
 // ── Pedidos Controller ────────────────────────────────────────────────────────
-const db = require('../config/database');
+import db from '../config/database.js';
 
 /**
  * GET /admin/orders/today
@@ -130,4 +130,4 @@ const updateOrder = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { listToday, toggleAceptaPedidos, updateOrder };
+export { listToday, toggleAceptaPedidos, updateOrder };

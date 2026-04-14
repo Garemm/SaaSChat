@@ -1,6 +1,6 @@
 // ── Product Model ────────────────────────────────────────────────────────────
 // Handles products, product_inventory, and product_attributes together.
-const db = require('../config/database');
+import db from '../config/database.js';
 
 const ProductModel = {
   // ── Count products for a business ─────────────────────────────────────────
@@ -252,4 +252,4 @@ const ProductModel = {
   },
 };
 
-module.exports = ProductModel;
+export default ProductModel;

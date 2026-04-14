@@ -34,7 +34,7 @@ const Login = () => {
     setLoading(true);
     try {
       await signIn(form.username, form.password);
-      navigate('/dashboard', { replace: true });
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

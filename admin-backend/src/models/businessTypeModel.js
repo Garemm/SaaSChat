@@ -1,5 +1,5 @@
 // ── BusinessType Model ────────────────────────────────────────────────────────
-const db = require('../config/database');
+import db from '../config/database.js';
 
 const BusinessTypeModel = {
   async findAll() {
@@ -10,4 +10,4 @@ const BusinessTypeModel = {
   },
 };
 
-module.exports = BusinessTypeModel;
+export default BusinessTypeModel;

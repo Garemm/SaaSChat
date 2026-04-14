@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * analyticsController.js
  *
@@ -15,7 +13,7 @@
  * the frontend 10-second poll always returns fresh data.
  */
 
-const db = require('../config/database');
+import db from '../config/database.js';
 
 // ── Tenant guard helper ────────────────────────────────────────────────────────
 function _guardTenant(req, res) {
@@ -30,7 +28,7 @@ function _guardTenant(req, res) {
 // ── GET /analytics/top-products/:business_id ──────────────────────────────────
 // Top 10 products ordered by number of individual log records (COUNT(*)).
 // Response: { data: [{ product_id, name, count }] }
-const getTopProducts = async (req, res) => {
+export const getTopProducts = async (req, res) => {
   const businessId = _guardTenant(req, res);
   if (businessId === null) return;
 
@@ -66,7 +64,7 @@ const getTopProducts = async (req, res) => {
 // Counts log records grouped by hour of day (0–23) using created_at.
 // Always returns all 24 hours; hours with no data have count = 0.
 // Response: { data: [{ hour, count }] }   (24 entries, sorted by hour asc)
-const getTrafficByHour = async (req, res) => {
+export const getTrafficByHour = async (req, res) => {
   const businessId = _guardTenant(req, res);
   if (businessId === null) return;
 
@@ -95,5 +93,3 @@ const getTrafficByHour = async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener estadísticas de tráfico' });
   }
 };
-
-module.exports = { getTopProducts, getTrafficByHour };

@@ -1,7 +1,7 @@
 // ── Register Controller ───────────────────────────────────────────────────────
-const bcrypt          = require('bcrypt');
-const BusinessModel   = require('../models/businessModel');
-const AdminModel      = require('../models/adminModel');
+import bcrypt from 'bcrypt';
+import BusinessModel from '../models/businessModel.js';
+import AdminModel from '../models/adminModel.js';
 
 const SALT_ROUNDS = 12;
 
@@ -86,4 +86,4 @@ const register = async (req, res, next) => {
   }
 };
 
-module.exports = { register };
+export { register };

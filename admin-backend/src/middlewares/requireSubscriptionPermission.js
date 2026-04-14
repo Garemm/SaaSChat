@@ -1,7 +1,7 @@
 // ── requireSubscriptionPermission middleware ──────────────────────────────────
 // Ensures the authenticated admin belongs to a business that has
 // tipo_permiso = 1 (manejo de suscriptores).  Must be placed AFTER requireAuth.
-const db = require('../config/database');
+import db from '../config/database.js';
 
 const requireSubscriptionPermission = async (req, res, next) => {
   try {
@@ -26,4 +26,4 @@ const requireSubscriptionPermission = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = requireSubscriptionPermission;
+export default requireSubscriptionPermission;

@@ -25,8 +25,8 @@ const StatCard = ({ label, value, icon, color }) => (
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
-  const { addToast }   = useToast();
-  const [data, setData]     = useState(null);
+  const { addToast }      = useToast();
+  const [data, setData]   = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

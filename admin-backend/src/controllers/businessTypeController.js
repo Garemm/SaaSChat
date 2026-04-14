@@ -1,5 +1,5 @@
 // ── BusinessType Controller ───────────────────────────────────────────────────
-const BusinessTypeModel = require('../models/businessTypeModel');
+import BusinessTypeModel from '../models/businessTypeModel.js';
 
 // GET /admin/business-types  (public — used by Register page)
 const list = async (req, res, next) => {
@@ -9,4 +9,4 @@ const list = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list };
+export { list };

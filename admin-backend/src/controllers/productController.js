@@ -1,6 +1,6 @@
 // ── Product Controller ────────────────────────────────────────────────────────
-const ProductModel  = require('../models/productModel');
-const CategoryModel = require('../models/categoryModel');
+import ProductModel from '../models/productModel.js';
+import CategoryModel from '../models/categoryModel.js';
 
 // ── Friendly duplicate item_code error ───────────────────────────────────────
 const UNIQUE_ITEM_CODE_CONSTRAINT = 'idx_products_item_code';
@@ -89,4 +89,4 @@ const listCategories = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, getById, create, update, remove, listCategories };
+export { list, getById, create, update, remove, listCategories };

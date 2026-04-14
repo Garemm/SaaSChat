@@ -1,10 +1,10 @@
 // ── Auth Controller ──────────────────────────────────────────────────────────
-const crypto        = require('crypto');
-const authService   = require('../services/authService');
-const emailService  = require('../services/emailService');
-const BusinessModel = require('../models/businessModel');
-const AdminModel    = require('../models/adminModel');
-const jwtUtils      = require('../config/jwt');
+import crypto from 'crypto';
+import * as authService from '../services/authService.js';
+import * as emailService from '../services/emailService.js';
+import BusinessModel from '../models/businessModel.js';
+import AdminModel from '../models/adminModel.js';
+import * as jwtUtils from '../config/jwt.js';
 
 /** SHA-256 hash of a refresh token for safe DB storage. */
 const hashToken = (token) =>
@@ -188,5 +188,5 @@ const logout = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { login, forgotPassword, resetPassword, changePassword, refreshToken, logout };
+export { login, forgotPassword, resetPassword, changePassword, refreshToken, logout };
 
