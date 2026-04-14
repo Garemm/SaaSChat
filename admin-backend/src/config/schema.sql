@@ -2,6 +2,19 @@
 -- Run this once against your PostgreSQL database to support the
 -- forgot-password / reset-password flow.
 
+-- ── product_query_logs performance indexes ──────────────────────────────────
+-- The analytics endpoints count individual log records grouped by business,
+-- product, and hour extracted from created_at.  These three covering indexes
+-- keep those GROUP BY / ORDER BY queries fast at high volume.
+CREATE INDEX IF NOT EXISTS idx_pql_business_id  ON product_query_logs (business_id);
+CREATE INDEX IF NOT EXISTS idx_pql_product_id   ON product_query_logs (product_id);
+CREATE INDEX IF NOT EXISTS idx_pql_created_at   ON product_query_logs (created_at);
+
+-- ── max_products on subscriptions ────────────────────────────────────────────
+-- Stores the product limit for each subscription plan.
+-- NULL means unlimited (no cap).
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS max_products INTEGER DEFAULT NULL;
+
 CREATE TABLE IF NOT EXISTS password_resets (
   id         SERIAL PRIMARY KEY,
   admin_id   INTEGER      NOT NULL REFERENCES admins(id) ON DELETE CASCADE,

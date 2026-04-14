@@ -38,6 +38,19 @@ const getById = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   try {
+    // ── Subscription product-limit check ─────────────────────────────────────
+    const maxProducts = await ProductModel.getSubscriptionLimit(req.businessId);
+    if (maxProducts !== null) {
+      const currentCount = await ProductModel.countByBusiness(req.businessId);
+      if (currentCount >= maxProducts) {
+        return res.status(403).json({
+          success: false,
+          error: 'Has alcanzado el límite de productos permitido por tu plan actual. ' +
+                 'Puedes actualizar tu suscripción para continuar agregando más productos.',
+        });
+      }
+    }
+
     const product = await ProductModel.create(req.businessId, req.body);
     res.status(201).json({ success: true, data: product });
   } catch (err) {

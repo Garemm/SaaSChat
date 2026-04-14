@@ -3,6 +3,29 @@
 const db = require('../config/database');
 
 const ProductModel = {
+  // ── Count products for a business ─────────────────────────────────────────
+  async countByBusiness(businessId) {
+    const { rows } = await db.query(
+      `SELECT COUNT(*)::int AS count FROM products WHERE business_id = $1`,
+      [businessId]
+    );
+    return rows[0].count;
+  },
+
+  // ── Get max_products limit from the active subscription ───────────────────
+  // Returns null when no subscription is assigned or when max_products is NULL
+  // (meaning unlimited).
+  async getSubscriptionLimit(businessId) {
+    const { rows } = await db.query(
+      `SELECT s.max_products
+       FROM businesses b
+       LEFT JOIN subscriptions s ON s.id = b.subscription_id
+       WHERE b.id = $1`,
+      [businessId]
+    );
+    return rows[0]?.max_products ?? null;
+  },
+
   // ── Find by item_code_empresa (for duplicate-key error messages) ──────────
   async findByItemCode(businessId, itemCode) {
     const { rows } = await db.query(

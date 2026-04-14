@@ -363,6 +363,44 @@ const confirm = async (req, res, next) => {
       console.log(`[import] Created ${created.length} new categories:`, created.map((c) => c.name));
     }
 
+    // ── Subscription product-limit check ─────────────────────────────────────
+    // Count how many rows in this batch are new inserts (item_code not yet in DB).
+    // Updates to existing products don't count against the limit.
+    const maxProducts = await ProductModel.getSubscriptionLimit(req.businessId);
+    if (maxProducts !== null) {
+      const validRows = resolvedRows.filter((r) => r._status !== 'error');
+      if (validRows.length > 0) {
+        const incomingCodes = validRows.map((r) => r.item_code);
+        const { rows: existingRows } = await db.query(
+          `SELECT item_code_empresa FROM products
+           WHERE business_id = $1 AND item_code_empresa = ANY($2::text[])`,
+          [req.businessId, incomingCodes]
+        );
+        const existingSet = new Set(existingRows.map((r) => r.item_code_empresa));
+        const newCount    = incomingCodes.filter((c) => !existingSet.has(c)).length;
+
+        if (newCount > 0) {
+          const currentCount = await ProductModel.countByBusiness(req.businessId);
+          const available    = maxProducts - currentCount;
+          if (available <= 0) {
+            return res.status(403).json({
+              success: false,
+              error: 'Has alcanzado el límite de productos permitido por tu plan actual. ' +
+                     'Puedes actualizar tu suscripción para continuar agregando más productos.',
+            });
+          }
+          if (newCount > available) {
+            return res.status(403).json({
+              success: false,
+              error: `Tu plan actual solo permite agregar ${available} producto(s) más. ` +
+                     `El archivo tiene ${newCount} productos nuevos. ` +
+                     'Actualiza tu suscripción para importar todos.',
+            });
+          }
+        }
+      }
+    }
+
     // ── Execute batch upsert inside a single transaction ──────────────────────
     const client = await db.connect();
     let result;

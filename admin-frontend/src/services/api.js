@@ -172,6 +172,10 @@ export const getTopProducts = (businessId) =>
   request(`${BASE}/analytics/top-products/${businessId}`)
     .then((res) => res.data ?? res);
 
+export const getTrafficByHour = (businessId) =>
+  request(`${BASE}/analytics/traffic-by-hour/${businessId}`)
+    .then((res) => res.data ?? res);
+
 // ── Bulk Import ───────────────────────────────────────────────────────────────
 export const importPreview = (file) => {
   const form = new FormData();

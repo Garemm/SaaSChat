@@ -86,7 +86,8 @@ router.post('/hours',       hoursController.upsertOne);
 router.delete('/hours/:id', hoursController.remove);
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
-router.get('/analytics/top-products/:business_id', analyticsController.getTopProducts);
+router.get('/analytics/top-products/:business_id',    analyticsController.getTopProducts);
+router.get('/analytics/traffic-by-hour/:business_id', analyticsController.getTrafficByHour);
 
 // ── Subscriptions (requires tipo_permiso = 1 — manejo de suscriptores) ──────────────
 router.get('/subscriptions',           requireSubscriptionPermission, subscriptionController.list);
