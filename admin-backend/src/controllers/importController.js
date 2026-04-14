@@ -7,13 +7,13 @@
 //   POST /import/confirm  — with createMissingCategories:true → create cats + upsert
 //
 // Required columns: item_code, name, price (stock + category are validated too)
-const multer       = require('multer');
-const ExcelJS      = require('exceljs');
-const csv          = require('csv-parser');
-const { Readable } = require('stream');
-const db           = require('../config/database');
-const ProductModel  = require('../models/productModel');
-const CategoryModel = require('../models/categoryModel');
+import multer from 'multer';
+import ExcelJS from 'exceljs';
+import csv from 'csv-parser';
+import { Readable } from 'stream';
+import db from '../config/database.js';
+import ProductModel from '../models/productModel.js';
+import CategoryModel from '../models/categoryModel.js';
 
 // ── Multer — memory storage, 5 MB limit ──────────────────────────────────────
 const upload = multer({
@@ -392,4 +392,4 @@ const confirm = async (req, res, next) => {
   }
 };
 
-module.exports = { preview, confirm };
+export { preview, confirm };

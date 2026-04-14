@@ -1,5 +1,5 @@
 // ── Hours Controller ──────────────────────────────────────────────────────────
-const HoursModel = require('../models/hoursModel');
+import HoursModel from '../models/hoursModel.js';
 
 const list = async (req, res, next) => {
   try {
@@ -42,4 +42,4 @@ const remove = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, upsertOne, bulkSave, remove };
+export { list, upsertOne, bulkSave, remove };

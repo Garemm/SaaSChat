@@ -1,13 +1,13 @@
 // ── Admin Backend — Entry Point ────────────────────────────────────────────
 // Starts the Express server. All route/middleware wiring lives in src/app.js.
-require('dotenv').config();
-const http       = require('http');
-const { Server } = require('socket.io');
-const app        = require('./src/app');
-const AdminModel = require('./src/models/adminModel');
-const BusinessModel = require('./src/models/businessModel');
-const cron       = require('node-cron');
-const db         = require('./src/config/database');
+import 'dotenv/config';
+import http from 'http';
+import { Server } from 'socket.io';
+import app from './src/app.js';
+import AdminModel from './src/models/adminModel.js';
+import BusinessModel from './src/models/businessModel.js';
+import cron from 'node-cron';
+import db from './src/config/database.js';
 
 const PORT = process.env.PORT || 4000;
 

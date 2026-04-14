@@ -1,21 +1,23 @@
 // ── Admin Router — root ──────────────────────────────────────────────────────
-const router      = require('express').Router();
-const requireAuth = require('../middlewares/requireAuth');
+import { Router } from 'express';
+import requireAuth from '../middlewares/requireAuth.js';
+import BusinessModel from '../models/businessModel.js';
+import * as authController from '../controllers/authController.js';
+import * as registerController from '../controllers/registerController.js';
+import * as businessController from '../controllers/businessController.js';
+import * as productController from '../controllers/productController.js';
+import * as categoryController from '../controllers/categoryController.js';
+import * as importController from '../controllers/importController.js';
+import * as serviceController from '../controllers/serviceController.js';
+import * as promotionController from '../controllers/promotionController.js';
+import * as hoursController from '../controllers/hoursController.js';
+import * as analyticsController from '../controllers/analyticsController.js';
+import * as subscriptionController from '../controllers/subscriptionController.js';
+import requireSubscriptionPermission from '../middlewares/requireSubscriptionPermission.js';
+import * as businessTypeController from '../controllers/businessTypeController.js';
+import * as pedidosController from '../controllers/pedidosController.js';
 
-const authController      = require('../controllers/authController');
-const registerController  = require('../controllers/registerController');
-const businessController  = require('../controllers/businessController');
-const productController   = require('../controllers/productController');
-const categoryController  = require('../controllers/categoryController');
-const importController    = require('../controllers/importController');
-const serviceController   = require('../controllers/serviceController');
-const promotionController = require('../controllers/promotionController');
-const hoursController     = require('../controllers/hoursController');
-const analyticsController = require('../controllers/analyticsController');
-const subscriptionController       = require('../controllers/subscriptionController');
-const requireSubscriptionPermission = require('../middlewares/requireSubscriptionPermission');
-const businessTypeController = require('../controllers/businessTypeController');
-const pedidosController      = require('../controllers/pedidosController');
+const router = Router();
 
 // ── Auth (public) ─────────────────────────────────────────────────────────────
 router.post('/login',           authController.login);
@@ -29,7 +31,6 @@ router.get('/business-types',   businessTypeController.list);
 // ── Public chat endpoint — resolves chat_uuid → business info ─────────────────
 router.get('/chat/:chat_uuid',  async (req, res, next) => {
   try {
-    const BusinessModel = require('../models/businessModel');
     const biz = await BusinessModel.findByChatUuid(req.params.chat_uuid);
     if (!biz) return res.status(404).json({ success: false, error: 'Chat no encontrado' });
     res.json({ success: true, data: biz });
@@ -96,4 +97,4 @@ router.put('/subscriptions/:id/plan',   requireSubscriptionPermission, subscript
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 router.get('/orders/today',             pedidosController.listToday);router.put('/orders/:id',               pedidosController.updateOrder);router.put('/business/acepto-pedidos',  pedidosController.toggleAceptaPedidos);
 
-module.exports = router;
+export default router;

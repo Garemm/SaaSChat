@@ -1,6 +1,6 @@
 // ── Business Model ──────────────────────────────────────────────────────────
-const db = require('../config/database');
-const { v4: uuidv4 } = require('uuid');
+import db from '../config/database.js';
+import { randomUUID } from 'crypto';
 
 const BusinessModel = {
   /**
@@ -9,7 +9,7 @@ const BusinessModel = {
    * Returns the created row including the auto-generated id and chat_uuid.
    */
   async create({ name, category, description, city, email, phone, webpage_link }) {
-    const chat_uuid = uuidv4();
+    const chat_uuid = randomUUID();
     const { rows } = await db.query(
       `INSERT INTO businesses (name, category, description, city, email, phone, webpage_link, is_active, chat_uuid)
        VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8)
@@ -119,4 +119,4 @@ const BusinessModel = {
   },
 };
 
-module.exports = BusinessModel;
+export default BusinessModel;

@@ -1,8 +1,8 @@
 // ── Subscription Controller ──────────────────────────────────────────────────
 // Manages which businesses have active subscription access.
 // Only admins whose business has tipo_permiso = 1 (manejo de suscriptores) may call these.
-const db            = require('../config/database');
-const BusinessModel = require('../models/businessModel');
+import db from '../config/database.js';
+import BusinessModel from '../models/businessModel.js';
 
 /**
  * GET /admin/subscriptions
@@ -62,4 +62,4 @@ const setPlan = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, toggle, setPlan };
+export { list, toggle, setPlan };

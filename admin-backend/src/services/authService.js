@@ -1,7 +1,7 @@
 // ── Auth Service ─────────────────────────────────────────────────────────────
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const AdminModel = require('../models/adminModel');
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import AdminModel from '../models/adminModel.js';
 
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
@@ -89,4 +89,4 @@ async function changePassword(businessId, currentPassword, newPassword) {
   await AdminModel.updatePassword(admin.id, hashed);
 }
 
-module.exports = { login, buildPermissions, createResetToken, resetPassword, changePassword };
+export { login, buildPermissions, createResetToken, resetPassword, changePassword };

@@ -1,5 +1,5 @@
 // ── Hours Model ──────────────────────────────────────────────────────────────
-const db = require('../config/database');
+import db from '../config/database.js';
 
 // Normalize HH:MM:SS → HH:MM for <input type="time">
 const t = (v) => (v ? String(v).slice(0, 5) : '');
@@ -101,4 +101,4 @@ const HoursModel = {
   },
 };
 
-module.exports = HoursModel;
+export default HoursModel;

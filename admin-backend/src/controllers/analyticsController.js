@@ -13,7 +13,7 @@
  * This avoids hammering PostgreSQL on every dashboard poll cycle.
  */
 
-const db = require('../config/database');
+import db from '../config/database.js';
 
 // ── In-process cache (business_id → { data, expiresAt }) ─────────────────────
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -81,4 +81,4 @@ const getTopProducts = async (req, res) => {
   }
 };
 
-module.exports = { getTopProducts };
+export { getTopProducts };

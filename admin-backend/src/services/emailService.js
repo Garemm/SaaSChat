@@ -1,6 +1,6 @@
 // ── Email Service ─────────────────────────────────────────────────────────────
 // Requires env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, CLIENT_URL
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -47,4 +47,4 @@ async function sendPasswordReset(toEmail, rawToken, businessName) {
   });
 }
 
-module.exports = { sendPasswordReset };
+export { sendPasswordReset };
