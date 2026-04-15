@@ -25,8 +25,8 @@ Los datos personales serán utilizados para:
 **4. Transferencia de Datos**
 Los datos podrán ser compartidos con:
 
-* Empresas registradas en la Plataforma (únicamente para gestionar pedidos o solicitudes)
-* Proveedores tecnológicos necesarios para la operación del sistema
+* Clientes de la propia empresa en la Plataforma (únicamente para gestionar pedidos o solicitudes).
+* hayChat Business se reserva el derecho de almacenamiento de los datos para el funcionamiento del servicio.
 
 No se venden ni comercializan datos personales a terceros.
 

@@ -55,7 +55,7 @@ const Login = () => {
               <path d="M9 9h6M9 12h6M9 15h4"/>
             </svg>
           </div>
-          <h1 className="login-card__title">Admin Panel</h1>
+          <h1 className="login-card__title">hayChat Panel</h1>
           <p className="login-card__sub">Ingresa tus credenciales para continuar</p>
         </div>
 
@@ -149,6 +149,7 @@ const Login = () => {
           <Link to="/register" className="register-link">Crear cuenta</Link>
         </p>
       </form>
+
     </div>
   );
 };

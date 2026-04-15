@@ -118,7 +118,8 @@ const Register = () => {
         {/* Header */}
         <div className="register-card__header">
           <h1>Crear cuenta</h1>
-          <p>Registra tu negocio y empieza a usar el panel</p>
+          <p>Tu tienda inteligente en tres pasos.</p>
+          <p>Registra tu marca, administra tus productos y activa tu propio chatbot híbrido hoy mismo!</p>
         </div>
 
         {serverErr && <div className="register-alert">{serverErr}</div>}

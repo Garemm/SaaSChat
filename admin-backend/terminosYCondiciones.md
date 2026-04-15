@@ -53,13 +53,8 @@ No se hace responsable por:
 Todo el contenido de la Plataforma (software, diseño, marca) es propiedad de **hayChat Business** y no puede ser utilizado sin autorización.
 
 **8. Suspensión del Servicio**
-Nos reservamos el derecho de:
-
-* Suspender cuentas
-* Limitar funcionalidades
-* Cancelar acceso
-
-En caso de incumplimiento de estos términos o uso indebido de la Plataforma.
+* En caso de incumplimiento de los presentes Términos y Condiciones o de uso indebido de la Plataforma, el proveedor podrá suspender o cancelar el acceso al servicio, sin perjuicio de las acciones legales correspondientes.
+* En caso de falta de renovación de la suscripción, la información de la empresa será resguardada por un periodo de hasta treinta (30) días naturales. Transcurrido dicho plazo, los datos podrán ser eliminados de forma definitiva. Si el titular desea la eliminación inmediata de su información, podrá solicitarla en cualquier momento a través de los canales de contacto indicados.
 
 **9. Modificaciones**
 Estos términos pueden actualizarse en cualquier momento. El uso continuo del servicio implica aceptación de los cambios.
