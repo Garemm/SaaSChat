@@ -16,6 +16,7 @@ import * as subscriptionController from '../controllers/subscriptionController.j
 import requireSubscriptionPermission from '../middlewares/requireSubscriptionPermission.js';
 import * as businessTypeController from '../controllers/businessTypeController.js';
 import * as pedidosController from '../controllers/pedidosController.js';
+import * as legalController from '../controllers/legalController.js';
 
 const router = Router();
 
@@ -28,6 +29,7 @@ router.post('/refresh',         authController.refreshToken);
 router.post('/logout',          authController.logout);
 // ── Public catalogue endpoints ────────────────────────────────────────────────
 router.get('/business-types',   businessTypeController.list);
+router.get('/legal/:type',      legalController.getDocument);
 // ── Public chat endpoint — resolves chat_uuid → business info ─────────────────
 router.get('/chat/:chat_uuid',  async (req, res, next) => {
   try {

@@ -212,6 +212,10 @@ export const getBusinessTypes = () =>
   publicRequest(`${BASE}/business-types`)
     .then((res) => res.data ?? res);
 
+export const getLegalDocument = (type) =>
+  publicRequest(`${BASE}/legal/${type}`)
+    .then((res) => res.content ?? res?.data?.content ?? '');
+
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 export const getTodaysOrders    = ()              => request(`${BASE}/orders/today`, { cache: 'no-store' });
 export const updateOrder        = (id, changes)   => request(`${BASE}/orders/${id}`, {
