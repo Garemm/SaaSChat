@@ -8,8 +8,9 @@ const MiWebpage = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('config'); // config, media, notices
+  const [activeTab, setActiveTab] = useState('config');
   const [editingId, setEditingId] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Config state
   const [config, setConfig] = useState({
@@ -31,7 +32,6 @@ const MiWebpage = () => {
   const [newNotice, setNewNotice] = useState({ title: '', content: '', notice_type: 'info', is_active: true });
 
   useEffect(() => {
-    // Simulated API call
     setTimeout(() => setLoading(false), 500);
   }, []);
 
@@ -88,6 +88,43 @@ const MiWebpage = () => {
     addToast('Aviso eliminado', 'success');
   };
 
+  const handleSaveConfig = async () => {
+    setSaving(true);
+    try {
+      // TODO: llamar API
+      addToast('Configuración guardada', 'success');
+    } catch (err) {
+      addToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddMedia = () => {
+    if (!newMedia.title || !newMedia.media_url) {
+      addToast('Completa todos los campos', 'error');
+      return;
+    }
+    setMedia([...media, { ...newMedia, id: Date.now(), is_active: true }]);
+    setNewMedia({ title: '', media_url: '', media_type: 'image' });
+    addToast('Media agregado', 'success');
+  };
+
+  const handleRemoveMedia = (id) => {
+    setMedia(media.filter(m => m.id !== id));
+    addToast('Media eliminado', 'success');
+  };
+
+  const handleAddNotice = () => {
+    if (!newNotice.title || !newNotice.content) {
+      addToast('Completa título y contenido', 'error');
+      return;
+    }
+    setNotices([...notices, { ...newNotice, id: Date.now() }]);
+    setNewNotice({ title: '', content: '', notice_type: 'info', is_active: true });
+    addToast('Aviso agregado', 'success');
+  };
+
   if (loading) {
     return (
       <div className="page page--center">
@@ -104,10 +141,34 @@ const MiWebpage = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="page__header">
-        <h2>Mi Página Web</h2>
-        <p className="page__subtitle">Personaliza y gestiona tu página web pública</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Mi Página Web</h2>
+            <p className="page__subtitle">Personaliza y gestiona tu página web pública</p>
+          </div>
+          <motion.button
+            className="btn btn--primary"
+            onClick={() => setShowPreview(!showPreview)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '0px',
+              marginRight: '0px'
+            }}
+          >
+            <Icon name="externallink" size={16} />
+            {showPreview ? 'Cerrar Preview' : 'Abrir Preview'}
+          </motion.button>
+        </div>
       </div>
 
+      {/* LAYOUT CON PREVIEW */}
+      <div style={{ display: 'grid', gridTemplateColumns: showPreview ? '1fr 1fr' : '1fr', gap: '24px', marginTop: '24px' }}>
+        {/* EDITOR PANEL */}
+        <div>
       {/* Tabs */}
       <div className="tabs-container">
         <button
@@ -422,8 +483,254 @@ const MiWebpage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+        </div>
+
+        {/* PREVIEW PANEL */}
+        {showPreview && (
+          <motion.div
+            className="preview-panel"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="preview-container">
+              <div className="preview-header">
+                <h3>Vista Previa</h3>
+                <span className="preview-url">{config.subdomain}.hayChat.app</span>
+              </div>
+              
+              <div className="preview-content" style={{ backgroundColor: config.theme_json.backgroundColor }}>
+                {/* Hero Section */}
+                <div className="preview-hero">
+                  <h1 style={{ color: config.theme_json.primaryColor }}>
+                    {config.hero_title}
+                  </h1>
+                  <p>{config.hero_subtitle}</p>
+                </div>
+
+                {/* Media Gallery */}
+                {media.length > 0 && (
+                  <div className="preview-media-section">
+                    <h3>Media</h3>
+                    <div className="preview-media-grid">
+                      {media.filter(m => m.is_active).map((item) => (
+                        <div key={item.id} className="preview-media-item">
+                          {item.media_type === 'image' && item.media_url && (
+                            <img src={item.media_url} alt={item.title} />
+                          )}
+                          {item.media_type === 'video' && item.media_url && (
+                            <div className="preview-video-placeholder">▶ Video</div>
+                          )}
+                          {!item.media_url && (
+                            <div className="preview-placeholder">{item.media_type}</div>
+                          )}
+                          <p>{item.title}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notices */}
+                {notices.length > 0 && (
+                  <div className="preview-notices-section">
+                    <h3>Avisos</h3>
+                    {notices.filter(n => n.is_active).map((notice) => (
+                      <div key={notice.id} className={`preview-notice preview-notice--${notice.notice_type}`}>
+                        <strong>{notice.title}</strong>
+                        <p>{notice.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Published Badge */}
+                <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '20px', borderTop: `2px solid ${config.theme_json.primaryColor}` }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: config.is_published ? config.theme_json.primaryColor : '#e5e7eb',
+                    color: config.is_published ? 'white' : '#6b7280'
+                  }}>
+                    {config.is_published ? '✓ Publicada' : '○ No Publicada'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
 
       <style>{`
+        .preview-panel {
+          position: sticky;
+          top: 80px;
+          height: fit-content;
+          max-height: calc(100vh - 100px);
+          overflow-y: auto;
+        }
+
+        .preview-container {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+          padding: 16px;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          border-bottom: 2px solid #1e40af;
+        }
+
+        .preview-header h3 {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        .preview-url {
+          font-size: 11px;
+          opacity: 0.9;
+          font-family: monospace;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+
+        .preview-content {
+          padding: 32px 24px;
+          min-height: 600px;
+          transition: background-color 0.3s ease;
+        }
+
+        .preview-hero {
+          text-align: center;
+          margin-bottom: 40px;
+          padding: 20px 0;
+        }
+
+        .preview-hero h1 {
+          margin: 0 0 12px 0;
+          font-size: 32px;
+          font-weight: 700;
+          transition: color 0.3s ease;
+        }
+
+        .preview-hero p {
+          margin: 0;
+          font-size: 16px;
+          color: #6b7280;
+          transition: color 0.3s ease;
+        }
+
+        .preview-media-section,
+        .preview-notices-section {
+          margin: 32px 0;
+        }
+
+        .preview-media-section h3,
+        .preview-notices-section h3 {
+          margin: 0 0 16px 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .preview-media-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 12px;
+        }
+
+        .preview-media-item {
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+          text-align: center;
+        }
+
+        .preview-media-item img {
+          width: 100%;
+          height: 120px;
+          object-fit: cover;
+          display: block;
+        }
+
+        .preview-video-placeholder,
+        .preview-placeholder {
+          width: 100%;
+          height: 120px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f3f4f6;
+          color: #9ca3af;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .preview-media-item p {
+          margin: 8px;
+          font-size: 12px;
+          color: #6b7280;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .preview-notice {
+          padding: 12px 16px;
+          margin-bottom: 12px;
+          border-radius: 8px;
+          border-left: 4px solid;
+        }
+
+        .preview-notice--info {
+          background: #dbeafe;
+          border-left-color: #0284c7;
+          color: #0c4a6e;
+        }
+
+        .preview-notice--warning {
+          background: #fef3c7;
+          border-left-color: #d97706;
+          color: #78350f;
+        }
+
+        .preview-notice--alert {
+          background: #fee2e2;
+          border-left-color: #dc2626;
+          color: #7f1d1d;
+        }
+
+        .preview-notice--success {
+          background: #dcfce7;
+          border-left-color: #16a34a;
+          color: #15803d;
+        }
+
+        .preview-notice strong {
+          display: block;
+          margin-bottom: 4px;
+          font-size: 13px;
+        }
+
+        .preview-notice p {
+          margin: 0;
+          font-size: 13px;
+        }
+
         .tabs-container {
           display: flex;
           gap: 8px;
