@@ -10,6 +10,7 @@ const ALL_LINKS = [
   { to: '/promotions',    label: 'Promociones',         icon: 'promotions',    permKey: 'promociones'        },
   { to: '/hours',         label: 'Horarios',            icon: 'hours',         permKey: 'horarios'           },
   { to: '/mi-haychat',    label: 'Mi hayChat',          icon: 'qrcode',        permKey: 'mi_haychat'         },
+  { to: '/mi-webpage',    label: 'Mi página web',       icon: 'webpage',       permKey: 'mi_webpage'         },
   { to: '/business',      label: 'Mi Negocio',          icon: 'business',      permKey: 'mi_negocio'         },
   { to: '/subscriptions', label: 'Suscripciones',       icon: 'subscriptions', permKey: 'suscripciones'      },
 ];
