@@ -9,4 +9,9 @@ const db = new Pool({
   password: String(process.env.DB_PASSWORD ?? ''),
 });
 
+// Force UTF-8 for every connection to avoid mojibake (e.g. "PapelerÃ­a").
+db.on('connect', (client) => {
+  client.query("SET client_encoding = 'UTF8'").catch(() => undefined);
+});
+
 export default db;

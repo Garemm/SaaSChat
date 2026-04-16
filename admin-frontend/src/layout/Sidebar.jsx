@@ -73,9 +73,10 @@ const Sidebar = ({ onClose }) => {
     if (window.innerWidth < 900) onClose?.();
   };
 
-  // Only show links whose permission key is TRUE in permissions_types.
-  // Falls back to empty list when permissions object is empty (no plan assigned).
-  const visibleLinks = ALL_LINKS.filter((l) => permissions[l.permKey] === true);
+  // Keep "Mi página web" visible while plans/permissions are being adjusted.
+  const visibleLinks = ALL_LINKS.filter((l) =>
+    l.to === '/mi-webpage' ? true : permissions[l.permKey] === true
+  );
 
   return (
     <aside className={`sidebar${locked ? ' sidebar--locked' : ''}`}>

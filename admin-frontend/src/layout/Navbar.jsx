@@ -12,6 +12,7 @@ const TITLES = {
   '/services':        'Servicios',
   '/promotions':      'Promociones',
   '/hours':           'Horarios',
+  '/mi-webpage':      'Mi página web',
   '/business':        'Mi Negocio',
   '/subscriptions': 'Suscripciones',
   '/change-password': 'Cambiar Contraseña',

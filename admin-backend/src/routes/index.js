@@ -17,6 +17,7 @@ import requireSubscriptionPermission from '../middlewares/requireSubscriptionPer
 import * as businessTypeController from '../controllers/businessTypeController.js';
 import * as pedidosController from '../controllers/pedidosController.js';
 import * as legalController from '../controllers/legalController.js';
+import * as webpageController from '../controllers/webpageController.js';
 
 const router = Router();
 
@@ -30,6 +31,8 @@ router.post('/logout',          authController.logout);
 // ── Public catalogue endpoints ────────────────────────────────────────────────
 router.get('/business-types',   businessTypeController.list);
 router.get('/legal/:type',      legalController.getDocument);
+router.get('/public/webpage-preview/:business_id', businessController.getWebpagePreview);
+router.get('/public/webpage/:subdomain', webpageController.getPublicPagePreview);
 // ── Public chat endpoint — resolves chat_uuid → business info ─────────────────
 router.get('/chat/:chat_uuid',  async (req, res, next) => {
   try {
@@ -50,6 +53,18 @@ router.get('/dashboard', businessController.getStats);
 // ── Business info ─────────────────────────────────────────────────────────────
 router.get('/business',  businessController.getInfo);
 router.put('/business',  businessController.updateInfo);
+
+// ── Webpage (admin) ───────────────────────────────────────────────────────────
+router.get('/webpage',                 webpageController.getConfig);
+router.put('/webpage',                 webpageController.updateConfig);
+router.get('/webpage/media',           webpageController.listMedia);
+router.post('/webpage/media',          webpageController.createMedia);
+router.put('/webpage/media/:id',       webpageController.updateMedia);
+router.delete('/webpage/media/:id',    webpageController.removeMedia);
+router.get('/webpage/notices',         webpageController.listNotices);
+router.post('/webpage/notices',        webpageController.createNotice);
+router.put('/webpage/notices/:id',     webpageController.updateNotice);
+router.delete('/webpage/notices/:id',  webpageController.removeNotice);
 
 // ── Categories ────────────────────────────────────────────────────────────────
 router.get('/categories',        categoryController.list);

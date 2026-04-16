@@ -227,3 +227,53 @@ export const setAceptaPedidos   = (value)   => request(`${BASE}/business/acepto-
   body: JSON.stringify({ acepto_pedidos: value }),
 });
 
+// ── Mi página web ──────────────────────────────────────────────────────────────
+export const getWebpageConfig = () =>
+  request(`${BASE}/webpage`);
+
+export const updateWebpageConfig = (data) =>
+  request(`${BASE}/webpage`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+
+export const getWebpageMedia = () =>
+  request(`${BASE}/webpage/media`);
+
+export const createWebpageMedia = (data) =>
+  request(`${BASE}/webpage/media`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateWebpageMedia = (id, data) =>
+  request(`${BASE}/webpage/media/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+
+export const deleteWebpageMedia = (id) =>
+  request(`${BASE}/webpage/media/${id}`, {
+    method: 'DELETE',
+  });
+
+export const getWebpageNotices = () =>
+  request(`${BASE}/webpage/notices`);
+
+export const createWebpageNotice = (data) =>
+  request(`${BASE}/webpage/notices`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateWebpageNotice = (id, data) =>
+  request(`${BASE}/webpage/notices/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+
+export const deleteWebpageNotice = (id) =>
+  request(`${BASE}/webpage/notices/${id}`, {
+    method: 'DELETE',
+  });
+
