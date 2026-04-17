@@ -1,6 +1,29 @@
 // ── Email Service ─────────────────────────────────────────────────────────────
 // Requires env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, CLIENT_URL
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
+
+function extractEmailAddress(value) {
+  if (!value) return '';
+  const match = String(value).match(/<([^>]+)>/);
+  return (match ? match[1] : String(value)).trim();
+}
+
+function getSenderConfig() {
+  const smtpUser = extractEmailAddress(process.env.SMTP_USER);
+  const configuredFrom = process.env.SMTP_FROM?.trim();
+
+  // Most SMTP providers only allow sending from the authenticated mailbox (or validated aliases).
+  const from = configuredFrom || (smtpUser ? `"hayChat Admin Panel" <${smtpUser}>` : '');
+  const envelopeFrom = extractEmailAddress(from) || smtpUser;
+
+  if (!envelopeFrom) {
+    throw new Error('SMTP sender is not configured. Define SMTP_USER (and optionally SMTP_FROM).');
+  }
+
+  return { from, envelopeFrom };
+}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -20,10 +43,15 @@ const transporter = nodemailer.createTransport({
  */
 async function sendPasswordReset(toEmail, rawToken, businessName) {
   const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
-  const from = process.env.SMTP_FROM || `"hayChat Admin Panel" <no-reply@${process.env.SMTP_HOST}>`;
+  const { from, envelopeFrom } = getSenderConfig();
 
   await transporter.sendMail({
     from,
+    sender: envelopeFrom,
+    envelope: {
+      from: envelopeFrom,
+      to: toEmail,
+    },
     to: toEmail,
     subject: 'Restablece tu contraseña — hayChat Admin Panel',
     html: `
