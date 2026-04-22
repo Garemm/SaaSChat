@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { marked } from 'marked';
-import { register, getBusinessTypes, getLegalDocument } from '../services/api';
+import { register, getBusinessTypes, getLegalDocument, checkUsername } from '../services/api';
 
 const INITIAL = {
   name: '', category: '', description: '', city: '', email: '',
@@ -24,6 +24,9 @@ const Register = () => {
   const [legalLoading, setLegalLoading] = useState(false);
   const [legalError, setLegalError] = useState('');
   const [legalHtml, setLegalHtml] = useState('');
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(null); // null = unknown, true/false
+  const [usernameCheckError, setUsernameCheckError] = useState('');
 
   useEffect(() => {
     getBusinessTypes()
@@ -35,6 +38,30 @@ const Register = () => {
   const set = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
+  const runCheckUsername = async (value) => {
+    const username = String(value || '').trim();
+    if (!username) {
+      setUsernameAvailable(null);
+      setUsernameCheckError('');
+      return null;
+    }
+
+    setUsernameChecking(true);
+    setUsernameCheckError('');
+    try {
+      const res = await checkUsername(username);
+      const available = res && typeof res.available !== 'undefined' ? res.available : (res.available ?? res);
+      setUsernameAvailable(Boolean(available));
+      return available;
+    } catch (err) {
+      setUsernameCheckError(err.message || 'Error al comprobar username');
+      setUsernameAvailable(null);
+      return null;
+    } finally {
+      setUsernameChecking(false);
+    }
+  };
+
   // ── Client-side validation ────────────────────────────────────────────────
   const validate = () => {
     const e = {};
@@ -45,6 +72,7 @@ const Register = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
                                e.email    = 'Email inválido';
     if (!form.username.trim()) e.username = 'Requerido';
+    else if (usernameAvailable === false) e.username = 'Por favor elige otro username, este ya está ocupado';
     if (!form.password)        e.password = 'Requerido';
     else if (form.password.length < 6)
                                e.password = 'Mínimo 6 caracteres';
@@ -87,6 +115,15 @@ const Register = () => {
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length) return;
+
+    // If availability unknown, check before submitting
+    if (usernameAvailable === null) {
+      const avail = await runCheckUsername(form.username);
+      if (avail === false) {
+        setErrors((x) => ({ ...x, username: 'Por favor elige otro username, este ya está ocupado' }));
+        return;
+      }
+    }
 
     setLoading(true);
     try {
@@ -212,15 +249,27 @@ const Register = () => {
         <div className="register-section">
           <div className="register-section__label">Cuenta de acceso</div>
 
-          <Field label="Username *" error={errors.username}>
-            <input
-              type="text"
-              placeholder="mi_negocio_admin"
-              autoComplete="username"
-              value={form.username}
-              onChange={set('username')}
-              className={errors.username ? 'input-error' : ''}
-            />
+          <Field label="Username *" error={errors.username || usernameCheckError}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="mi_negocio_admin"
+                autoComplete="username"
+                value={form.username}
+                onChange={(e) => {
+                  set('username')(e);
+                  setUsernameAvailable(null);
+                  setUsernameCheckError('');
+                }}
+                onBlur={(e) => runCheckUsername(e.target.value)}
+                className={errors.username ? 'input-error' : ''}
+                style={{ flex: 1 }}
+              />
+              {usernameChecking && <span className="register-field__checking" aria-hidden>Comprobando…</span>}
+              {usernameAvailable === true && (
+                <span className="register-field__ok" aria-hidden>✔</span>
+              )}
+            </div>
           </Field>
 
           <div className="register-row register-row--2">

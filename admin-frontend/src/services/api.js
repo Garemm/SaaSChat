@@ -124,6 +124,10 @@ export const register = (data) =>
     body: JSON.stringify(data),
   });
 
+export const checkUsername = (username) =>
+  publicRequest(`${BASE}/check-username?username=${encodeURIComponent(username)}`)
+    .then((res) => (res && res.data) ? res.data : res);
+
 // ── Authenticated endpoints ───────────────────────────────────────────────────
 export const changePassword = (currentPassword, newPassword, confirmPassword) =>
   request(`${BASE}/change-password`, {

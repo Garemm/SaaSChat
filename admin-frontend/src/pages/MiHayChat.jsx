@@ -10,7 +10,7 @@ import Icon from '../components/ui/Icon';
 const getChatUrl = (chatUuid, businessId) => {
   const origin =
     import.meta.env.VITE_CHAT_BASE_URL ??
-    `${window.location.protocol}//${window.location.hostname}:5173`;
+    `${window.location.protocol}//${window.location.hostname}`;
   const slug = chatUuid ?? businessId;
   return `${origin}/chat/${slug}`;
 };
